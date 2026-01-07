@@ -14,7 +14,7 @@ ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
             {
                 emit graphCaptcha(graphFile);
             }
-            if (output.contains("Please enter the SMS verification code: "))
+            if (output.contains("Please enter the SMS verification code: ") || output.contains("Please enter your SMS code:"))
             {
                 emit smsCode();
             }
