@@ -140,7 +140,7 @@ jobs:
           path: ${{ env.ARCHIVE_NAME }}.zip
 
   build-macos-x64:
-    runs-on: macos-13
+    runs-on: macos-14
     env:
       ARCHIVE_NAME: ${{ github.event.repository.name }}-${{ github.event.release.tag_name || 'nightly' }}-macos-x64
     steps:
@@ -217,7 +217,7 @@ jobs:
           path: ${{ env.ARCHIVE_NAME }}.zip
 
   build-macos-arm64:
-    runs-on: macos-13
+    runs-on: macos-14
     env:
       ARCHIVE_NAME: ${{ github.event.repository.name }}-${{ github.event.release.tag_name || 'nightly' }}-macos-arm64
     steps:
