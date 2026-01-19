@@ -123,7 +123,9 @@ void ZjuConnectController::start(
     const QString& udpPortForwarding,
     const QString& customDNS,
     const QString& customProxyDomain,
-    const QString& extraArguments
+    const QString& extraArguments,
+    const QString& certFile,
+    const QString& certPassword
 )
 {
     QStringList args;
@@ -302,6 +304,18 @@ void ZjuConnectController::start(
     {
         args.append("-custom-proxy-domain");
         args.append(customProxyDomain);
+    }
+
+    if (!certFile.isEmpty())
+    {
+        args.append("-cert-file");
+        args.append(certFile);
+    }
+
+    if (!certPassword.isEmpty())
+    {
+        args.append("-cert-password");
+        args.append(certPassword);
     }
 
     if (!extraArguments.isEmpty())

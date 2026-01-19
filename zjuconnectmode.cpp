@@ -183,7 +183,9 @@ void MainWindow::initZjuConnect()
                             settings->value("ZJUConnect/UdpPortForwarding").toString(),
                             settings->value("ZJUConnect/CustomDNS", "").toString(),
                             settings->value("ZJUConnect/CustomProxyDomain", "").toString(),
-                            settings->value("ZJUConnect/ExtraArguments", "").toString());
+                            settings->value("ZJUConnect/ExtraArguments", "").toString(),
+                            settings->value("Credential/CertFile", "").toString(),
+                            QByteArray::fromBase64(settings->value("Credential/CertPassword", "").toString().toUtf8()));
                 	};
 
                     if (protocol == "atrust" && authtype == "cas")
