@@ -123,9 +123,9 @@ void ZjuConnectController::start(
     const QString& udpPortForwarding,
     const QString& customDNS,
     const QString& customProxyDomain,
-    const QString& extraArguments,
     const QString& certFile,
-    const QString& certPassword
+    const QString& certPassword,
+    const QString& extraArguments
 )
 {
     QStringList args;
@@ -306,18 +306,6 @@ void ZjuConnectController::start(
         args.append(customProxyDomain);
     }
 
-    if (!certFile.isEmpty())
-    {
-        args.append("-cert-file");
-        args.append(certFile);
-    }
-
-    if (!certPassword.isEmpty())
-    {
-        args.append("-cert-password");
-        args.append(certPassword);
-    }
-
     if (!extraArguments.isEmpty())
     {
         args.append(extraArguments.split(" "));
@@ -345,6 +333,18 @@ void ZjuConnectController::start(
         emit outputRead(timeString + " 使用了 TOTP");
         credentialList.append("-totp-secret");
         credentialList.append(totpSecret);
+    }
+
+    if (!certFile.isEmpty())
+    {
+        args.append("-cert-file");
+        args.append(certFile);
+    }
+
+    if (!certPassword.isEmpty())
+    {
+        args.append("-cert-password");
+        args.append(certPassword);
     }
 
     zjuConnectProcess->start(program, credentialList + args);
