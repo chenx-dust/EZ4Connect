@@ -117,6 +117,24 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings) :
             ui->totpSecretLineEdit->setEchoMode(state == Qt::Checked ? QLineEdit::Normal : QLineEdit::Password);
         });
 
+    connect(ui->certPasswordVisibleCheckBox, &QCheckBox::checkStateChanged,
+        [&](Qt::CheckState state)
+        {
+            ui->certPasswordLineEdit->setEchoMode(state == Qt::Checked ? QLineEdit::Normal : QLineEdit::Password);
+        });
+
+    connect(ui->certFileBrowseButton, &QPushButton::clicked,
+        [&]()
+        {
+            QString filename = QFileDialog::getOpenFileName(this, "选择证书文件",
+                QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
+                "P12 Certificate(*.p12 *.pfx);;All Files(*.*)");
+            if (!filename.isEmpty())
+            {
+                ui->certFileLineEdit->setText(filename);
+            }
+        });
+
     connect(ui->authSelectPushButton, &QPushButton::clicked, this, [&]() {
         authInfoWindow = new AuthInfoWindow(this);
         connect(authInfoWindow, &AuthInfoWindow::finishAuthInfo, this,
@@ -151,6 +169,10 @@ void SettingWindow::loadSettings()
         QByteArray::fromBase64(settings->value("Credential/Password").toString().toUtf8())
     );
     ui->totpSecretLineEdit->setText(settings->value("Credential/TOTPSecret").toString());
+    ui->certFileLineEdit->setText(settings->value("Credential/CertFile").toString());
+    ui->certPasswordLineEdit->setText(
+        QByteArray::fromBase64(settings->value("Credential/CertPassword").toString().toUtf8())
+    );
 
     ui->autoStartCheckBox->setChecked(settings->value("Common/AutoStart").toBool());
     ui->connectAfterStartCheckBox->setChecked(settings->value("Common/ConnectAfterStart").toBool());
@@ -219,6 +241,8 @@ void SettingWindow::applySettings()
     settings->setValue("Credential/Username", ui->usernameLineEdit->text());
     settings->setValue("Credential/Password", QString(ui->passwordLineEdit->text().toUtf8().toBase64()));
     settings->setValue("Credential/TOTPSecret", ui->totpSecretLineEdit->text());
+    settings->setValue("Credential/CertFile", ui->certFileLineEdit->text());
+    settings->setValue("Credential/CertPassword", QString(ui->certPasswordLineEdit->text().toUtf8().toBase64()));
 
     settings->setValue("Common/AutoStart", ui->autoStartCheckBox->isChecked());
     settings->setValue("Common/ConnectAfterStart", ui->connectAfterStartCheckBox->isChecked());

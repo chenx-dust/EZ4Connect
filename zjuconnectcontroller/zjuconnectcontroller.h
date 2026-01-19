@@ -60,6 +60,8 @@ public:
         const QString& udpPortForwarding,
         const QString& customDNS,
         const QString& customProxyDomain,
+        const QString& certFile,
+        const QString& certPassword,
         const QString& extraArguments
     );
 
