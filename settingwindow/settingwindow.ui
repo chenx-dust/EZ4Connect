@@ -452,7 +452,7 @@
           <item row="5" column="2">
            <widget class="QLineEdit" name="certFileLineEdit">
             <property name="placeholderText">
-             <string>可选，p12 证书文件路径</string>
+             <string>可选，p12/pfx 证书文件路径</string>
             </property>
            </widget>
           </item>
