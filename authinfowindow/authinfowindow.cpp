@@ -37,7 +37,7 @@ AuthInfoWindow::AuthInfoWindow(QWidget *parent)
                 if (mainWindow)
                     mainWindow->addLog("可用认证方式：\n" + output);
                 QJsonParseError jsonError;
-                QJsonDocument doc = QJsonDocument::fromJson(output.toLocal8Bit(), &jsonError);
+                QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8(), &jsonError);
                 if (jsonError.error != QJsonParseError::NoError && mainWindow)
                     mainWindow->addLog("解析可用认证方式失败：" + jsonError.errorString());
                 if (!doc.isArray() && mainWindow)
