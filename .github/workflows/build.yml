@@ -71,6 +71,7 @@ jobs:
           tar -xf zju-connect-windows-amd64.zip
           rm zju-connect-windows-amd64.zip
           cp ../libs/wintun/bin/amd64/wintun.dll .
+          cp ../resource/qt.conf .
           rm vc_redist.x64.exe
           cd ..
           Compress-Archive -Path "${{ env.DISPLAY_NAME }}" -DestinationPath ${{ env.ARCHIVE_NAME }}.zip
@@ -129,6 +130,7 @@ jobs:
           tar -xf zju-connect-windows-arm64.zip
           rm zju-connect-windows-arm64.zip
           cp ../libs/wintun/bin/arm64/wintun.dll .
+          cp ../resource/qt.conf .
           rm vc_redist.arm64.exe
           cd ..
           Compress-Archive -Path "${{ env.DISPLAY_NAME }}" -DestinationPath ${{ env.ARCHIVE_NAME }}.zip
