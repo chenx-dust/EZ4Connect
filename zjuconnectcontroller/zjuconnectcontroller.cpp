@@ -6,9 +6,31 @@ ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
 {
     zjuConnectProcess = new QProcess(this);
 
+    // 初始化日志文件
+    logFile = new QFile(getLogFilePath());
+    if (logFile->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
+    {
+        logStream = new QTextStream(logFile);
+        logStream->setEncoding(QStringConverter::Utf8);
+        QString startMsg = "=== Log started at " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + " ===\n";
+        *logStream << startMsg;
+        logStream->flush();
+    }
+
     auto outputProcess = [&](const QString& output)
         {
             emit outputRead(output);
+
+            // 写入日志文件
+            if (logStream != nullptr)
+            {
+                *logStream << output;
+                if (!output.endsWith('\n'))
+                {
+                    *logStream << '\n';
+                }
+                logStream->flush();
+            }
 
             if (output.contains("Graph check code saved to "))
             {
@@ -369,4 +391,35 @@ void ZjuConnectController::stop()
 ZjuConnectController::~ZjuConnectController()
 {
     stop();
+
+    // 关闭日志文件
+    if (logStream != nullptr)
+    {
+        QString endMsg = "=== Log ended at " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + " ===\n";
+        *logStream << endMsg;
+        logStream->flush();
+        delete logStream;
+        logStream = nullptr;
+    }
+
+    if (logFile != nullptr)
+    {
+        if (logFile->isOpen())
+        {
+            logFile->close();
+        }
+        delete logFile;
+        logFile = nullptr;
+    }
+}
+
+QString ZjuConnectController::getLogFilePath()
+{
+    QString logPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir logDir(logPath);
+    if (!logDir.exists())
+    {
+        logDir.mkpath(".");
+    }
+    return logDir.filePath("zjuconnect.log");
 }

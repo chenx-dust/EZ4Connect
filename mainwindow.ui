@@ -164,6 +164,7 @@ Line 2
      <string>帮助</string>
     </property>
     <addaction name="disableProxyAction"/>
+    <addaction name="openLogAction"/>
     <addaction name="checkUpdateAction"/>
     <addaction name="projectAction"/>
     <addaction name="aboutAction"/>
@@ -231,6 +232,14 @@ Line 2
   <action name="projectAction">
    <property name="text">
     <string>项目主页</string>
+   </property>
+  </action>
+  <action name="openLogAction">
+   <property name="text">
+    <string>打开日志文件</string>
+   </property>
+   <property name="toolTip">
+    <string>打开核心程序的日志文件</string>
    </property>
   </action>
  </widget>

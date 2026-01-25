@@ -26,6 +26,8 @@ public:
 
     ~ZjuConnectController() override;
 
+    static QString getLogFilePath();
+
     void start(
         const QString& program,
         const QString& protocol,
@@ -88,6 +90,9 @@ private:
     QTemporaryDir *tempDir = nullptr;
 
     QString graphFile;
+
+    QFile *logFile = nullptr;
+    QTextStream *logStream = nullptr;
 };
 
 #endif //ZJUCONNECTCONTROLLER_H

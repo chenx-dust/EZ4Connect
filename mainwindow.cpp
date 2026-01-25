@@ -6,6 +6,7 @@
 #include <QNetworkInterface>
 #include <QClipboard>
 #include <QDesktopServices>
+#include <QFileInfo>
 
 #include "mainwindow.h"
 
@@ -95,6 +96,23 @@ MainWindow::MainWindow(QWidget *parent) :
             {
                 settingWindow = new SettingWindow(this, settings);
                 settingWindow->show();
+            });
+
+    // 文件-打开日志文件
+    connect(ui->openLogAction, &QAction::triggered, this,
+            [&]()
+            {
+                QString logFilePath = ZjuConnectController::getLogFilePath();
+                QFileInfo logFileInfo(logFilePath);
+                
+                if (logFileInfo.exists())
+                {
+                    QDesktopServices::openUrl(QUrl::fromLocalFile(logFilePath));
+                }
+                else
+                {
+                    QMessageBox::information(this, "日志文件", "日志文件还未生成，请先启动 VPN 连接。");
+                }
             });
 
     // 帮助-清除系统代理
