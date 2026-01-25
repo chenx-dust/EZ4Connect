@@ -7,6 +7,13 @@
 #include <QtSystemDetection>
 #include <QDir>
 #include <QFileInfo>
+#include <QCoreApplication>
+#if defined(Q_OS_WIN)
+#include <windows.h>
+#include <shellapi.h>
+#elif defined(Q_OS_UNIX)
+#include <unistd.h>
+#endif
 
 #include "utils.h"
 
@@ -148,6 +155,91 @@ QString macOSAppBundleName()
 QString nativeAppPath()
 {
     return QDir::toNativeSeparators(QCoreApplication::applicationFilePath());
+}
+
+bool Utils::isRunningAsAdmin()
+{
+#if defined(Q_OS_WIN)
+    BOOL isAdmin = FALSE;
+    PSID adminGroup = nullptr;
+    SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
+
+    if (AllocateAndInitializeSid(&ntAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID,
+        DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &adminGroup))
+    {
+        CheckTokenMembership(nullptr, adminGroup, &isAdmin);
+        FreeSid(adminGroup);
+    }
+    return isAdmin;
+#elif defined(Q_OS_UNIX)
+    return geteuid() == 0;
+#else
+    return false;
+#endif
+}
+
+bool Utils::relaunchAsAdmin(const QStringList &extraArgs)
+{
+    QString program = QCoreApplication::applicationFilePath();
+    QStringList args = QCoreApplication::arguments();
+
+    if (!args.isEmpty())
+    {
+        args.removeFirst();
+    }
+
+    args.append(extraArgs);
+
+#if defined(Q_OS_WIN)
+    QStringList quotedArgs;
+    for (const QString &arg : args)
+    {
+        if (arg.contains(' '))
+        {
+            quotedArgs << "\"" + arg + "\"";
+        }
+        else
+        {
+            quotedArgs << arg;
+        }
+    }
+    QString arguments = quotedArgs.join(" ");
+    HINSTANCE res = ShellExecuteW(
+        nullptr,
+        L"runas",
+        reinterpret_cast<LPCWSTR>(program.utf16()),
+        reinterpret_cast<LPCWSTR>(arguments.utf16()),
+        nullptr,
+        SW_SHOWNORMAL
+    );
+
+    return reinterpret_cast<INT_PTR>(res) > 32;
+#elif defined(Q_OS_MAC)
+    // Use AppleScript to prompt a GUI password dialog.
+    QString commandLine = QProcess::joinCommand(QStringList() << program << args);
+    QString escaped = commandLine;
+    escaped.replace("\\", "\\\\");
+    escaped.replace("\"", "\\\"");
+    QString script = "do shell script \"" + escaped + "\" with administrator privileges";
+
+    return QProcess::startDetached("osascript", QStringList() << "-e" << script);
+#elif defined(Q_OS_UNIX)
+    QStringList elevatedArgs;
+    elevatedArgs << program;
+    elevatedArgs << args;
+
+    // Prefer pkexec if available; fall back to sudo.
+    if (QProcess::startDetached("pkexec", elevatedArgs))
+    {
+        return true;
+    }
+
+    return QProcess::startDetached("sudo", elevatedArgs);
+#else
+    Q_UNUSED(program)
+    Q_UNUSED(args)
+    return false;
+#endif
 }
 
 void Utils::setAutoStart(bool enable)

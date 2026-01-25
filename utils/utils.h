@@ -39,6 +39,10 @@ namespace Utils
     QString getCorePath();
 
     QString checkCoreVersion(QObject *parent);
+
+    bool isRunningAsAdmin();
+
+    bool relaunchAsAdmin(const QStringList &extraArgs = {});
 }
 
 #endif //UTILS_H

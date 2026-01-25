@@ -1,5 +1,6 @@
 #include <QMessageBox>
 #include <QInputDialog>
+#include <QApplication>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -139,6 +140,19 @@ void MainWindow::initZjuConnect()
                     QString password_ = QByteArray::fromBase64(settings->value("Credential/Password", "").toString().toUtf8());
                     QString protocol = settings->value("ZJUConnect/Protocol", "easyconnect").toString();
                     QString authtype = settings->value("ZJUConnect/AuthType", "psw").toString();
+
+                    if (settings->value("ZJUConnect/TunMode").toBool() && !Utils::isRunningAsAdmin())
+                    {
+                        if (Utils::relaunchAsAdmin())
+                        {
+                            QApplication::quit();
+                        }
+                        else
+                        {
+                            QMessageBox::warning(this, "提升失败", "无法以管理员权限重新启动，请手动以管理员方式运行。");
+                        }
+                        return;
+                    }
 
                     auto startZjuConnect = [this](const QString &username, const QString &password, const QString &casTicket) {
                         QString program_path = Utils::getCorePath();
