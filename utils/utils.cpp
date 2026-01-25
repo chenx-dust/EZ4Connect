@@ -216,11 +216,28 @@ bool Utils::relaunchAsAdmin(const QStringList &extraArgs)
     return reinterpret_cast<INT_PTR>(res) > 32;
 #elif defined(Q_OS_MAC)
     // Use AppleScript to prompt a GUI password dialog.
-    QString commandLine = QProcess::joinCommand(QStringList() << program << args);
-    QString escaped = commandLine;
+    QStringList elevatedArgs;
+    elevatedArgs << program;
+    elevatedArgs << args;
+    QStringList quotedArgs;
+    for (const QString &arg : elevatedArgs)
+    {
+        if (arg.contains(' '))
+        {
+            quotedArgs << "\"" + arg + "\"";
+        }
+        else
+        {
+            quotedArgs << arg;
+        }
+    }
+    QString arguments = quotedArgs.join(" ");
+    QString escaped = arguments;
     escaped.replace("\\", "\\\\");
     escaped.replace("\"", "\\\"");
     QString script = "do shell script \"" + escaped + "\" with administrator privileges";
+
+    qDebug() << script;
 
     return QProcess::startDetached("osascript", QStringList() << "-e" << script);
 #elif defined(Q_OS_UNIX)
