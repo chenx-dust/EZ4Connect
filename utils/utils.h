@@ -9,7 +9,7 @@
 
 namespace Utils
 {
-    const inline QString REPO_NAME("PageChen04/EZ4Connect");
+    const inline QString REPO_NAME("chenx-dust/EZ4Connect");
     const inline QString CORE_REPO_NAME("Mythologyli/zju-connect");
 
     const inline QString APP_NAME("EZ4Connect");

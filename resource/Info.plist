@@ -9,7 +9,7 @@
 	<key>CFBundleIconFile</key>
 	<string>icon.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.github.PageChen04.EZ4Connect</string>
+	<string>com.github.chenx-dust.EZ4Connect</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleLongVersionString</key>
@@ -27,6 +27,6 @@
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2025 PageChen04. Licensed under LGPL-3.0.</string>
+	<string>Copyright © 2025 Chenx Dust. Licensed under LGPL-3.0.</string>
 </dict>
 </plist>

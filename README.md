@@ -2,10 +2,10 @@
 
 *前身为 HITsz Connect for Windows*
 
-![Action](https://github.com/PageChen04/EZ4Connect/actions/workflows/build.yml/badge.svg)
-![Release](https://img.shields.io/github/v/release/PageChen04/EZ4Connect)
-![Downloads](https://img.shields.io/github/downloads/PageChen04/EZ4Connect/total)
-![License](https://img.shields.io/github/license/PageChen04/EZ4Connect)
+![Action](https://github.com/chenx-dust/EZ4Connect/actions/workflows/build.yml/badge.svg)
+![Release](https://img.shields.io/github/v/release/chenx-dust/EZ4Connect)
+![Downloads](https://img.shields.io/github/downloads/chenx-dust/EZ4Connect/total)
+![License](https://img.shields.io/github/license/chenx-dust/EZ4Connect)
 
 改进的 ZJU-Connect 图形界面
 
@@ -15,7 +15,7 @@
 
 ## 使用方式
 
-1. 在本项目的 [Releases](https://github.com/PageChen04/EZ4Connect/releases) 页面下载最新版本：
+1. 在本项目的 [Releases](https://github.com/chenx-dust/EZ4Connect/releases) 页面下载最新版本：
 
 - **Windows 用户**：下载 `EZ4Connect-vX.X.X-windows-ARCH.zip` ，解压至同一目录下，双击运行 `EZ4Connect.exe` ；
   - 如果遇到缺少 DLL 等问题，请先下载安装 Microsoft Visual C++ 可再发行程序包版本（[x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) | [arm64](https://aka.ms/vs/17/release/vc_redist.arm64.exe)），再运行程序；

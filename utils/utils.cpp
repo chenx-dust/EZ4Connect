@@ -71,7 +71,7 @@ void Utils::showAboutMessageBox(QWidget *parent)
     messageBox.setTextFormat(Qt::RichText);
     QString aboutText = QApplication::applicationDisplayName() + " " + QApplication::applicationVersion() +
                         "<br>改进的 ZJU-Connect 图形界面" +
-                        "<br>作者：<a href='https://github.com/PageChen04'>Page Chen</a>" +
+                        "<br>作者：<a href='https://github.com/chenx-dust'>Chenx Dust</a>" +
                         "<br>项目主页：<a href='https://github.com/" + REPO_NAME + "'>https://github.com/" + REPO_NAME + "</a>" +
                         "<br><br><b>致谢：</b>" +
                         "<br><br>ZJU-Connect-for-Windows" +
