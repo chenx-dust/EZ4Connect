@@ -222,7 +222,8 @@ void MainWindow::initZjuConnect()
                         ssoLoginWebView->setCallbackServerHost(serverHost);
                         ssoLoginWebView->show();
                     }
-                    else if (username_.isEmpty() || password_.isEmpty())
+                    else if (settings->value("Credential/CertFile", "").toString().isEmpty() &&
+                             (username_.isEmpty() || password_.isEmpty()))
                     {
                         loginWindow = new LoginWindow(this);
                         loginWindow->setDetail(username_, password_);

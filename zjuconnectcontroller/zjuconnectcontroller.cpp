@@ -359,6 +359,7 @@ void ZjuConnectController::start(
 
     if (!certFile.isEmpty())
     {
+        emit outputRead(timeString + " 使用了证书文件");
         args.append("-cert-file");
         args.append(certFile);
     }

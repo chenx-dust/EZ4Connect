@@ -42,7 +42,7 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings) :
             });
 
     connect(ui->buttonBox->button(QDialogButtonBox::Ok), &QPushButton::clicked, [&]() {
-        if (!(ui->atrustRadioButton->isChecked() && ui->casRadioButton->isChecked()) &&
+        if (!(ui->atrustRadioButton->isChecked() && ui->casRadioButton->isChecked()) && !ui->certFileLineEdit->text().isEmpty() &&
             !Utils::credentialCheck(ui->usernameLineEdit->text(), ui->passwordLineEdit->text()))
             return;
         applySettings();
@@ -50,7 +50,7 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings) :
     });
 
     connect(ui->buttonBox->button(QDialogButtonBox::Apply), &QPushButton::clicked, [&]() {
-        if (!(ui->atrustRadioButton->isChecked() && ui->casRadioButton->isChecked()) &&
+        if (!(ui->atrustRadioButton->isChecked() && ui->casRadioButton->isChecked()) && !ui->certFileLineEdit->text().isEmpty() &&
             !Utils::credentialCheck(ui->usernameLineEdit->text(), ui->passwordLineEdit->text()))
             return;
         applySettings();
