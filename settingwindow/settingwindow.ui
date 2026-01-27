@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>514</width>
-    <height>519</height>
+    <height>578</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -232,10 +232,23 @@
           <string>认证信息（aTrust）</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_3">
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>认证方式</string>
+             <string>手机号码</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="3">
+           <widget class="QLineEdit" name="casLoginUrlLineEdit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string>可选，可自动生成，仅用于单点登录</string>
             </property>
            </widget>
           </item>
@@ -256,7 +269,42 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1" colspan="2">
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>单点认证地址</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>登录域</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QRadioButton" name="smsCheckCodeRadioButton">
+            <property name="text">
+             <string>短信验证</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>认证方式</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="4">
+           <widget class="QPushButton" name="authSelectPushButton">
+            <property name="text">
+             <string>获取认证方式</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="3">
            <widget class="QLineEdit" name="loginDomainLineEdit">
             <property name="text">
              <string/>
@@ -266,14 +314,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0" colspan="3">
-           <widget class="QPushButton" name="authSelectPushButton">
-            <property name="text">
-             <string>获取认证方式</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
+          <item row="5" column="0">
            <spacer name="horizontalSpacer">
             <property name="orientation">
              <enum>Qt::Orientation::Horizontal</enum>
@@ -289,32 +330,43 @@
             </property>
            </spacer>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>登录域</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>单点认证地址</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1" colspan="2">
-           <widget class="QLineEdit" name="casLoginUrlLineEdit">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="placeholderText">
-             <string>选填，可自动生成，仅用于单点登录</string>
-            </property>
-           </widget>
+          <item row="4" column="1" colspan="3">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="countryCodeLineEdit">
+              <property name="maximumSize">
+               <size>
+                <width>45</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="placeholderText">
+               <string>国家</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="phoneNumberLineEdit">
+              <property name="placeholderText">
+               <string>手机号码，仅用于短信验证</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -912,6 +964,38 @@
     <hint type="destinationlabel">
      <x>311</x>
      <y>173</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>smsCheckCodeRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>countryCodeLineEdit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>429</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>196</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>smsCheckCodeRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>phoneNumberLineEdit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>429</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>358</x>
+     <y>297</y>
     </hint>
    </hints>
   </connection>

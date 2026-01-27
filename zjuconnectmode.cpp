@@ -167,10 +167,14 @@ void MainWindow::initZjuConnect()
                             ui->pushButton2->click();
                         }
 
+                        QString countryCode = settings->value("ZJUConnect/PhoneCountryCode").toString();
+                        QString phoneNumber = settings->value("ZJUConnect/PhoneNumber").toString();
+                        QString phone = !countryCode.isEmpty() && !phoneNumber.isEmpty() ? (countryCode + "-" + phoneNumber) : "";
+
                         zjuConnectController->start(
                             program_path, settings->value("ZJUConnect/Protocol").toString(),
                             settings->value("ZJUConnect/AuthType").toString(),
-                            settings->value("ZJUConnect/LoginDomain").toString(), casTicket, username, password,
+                            settings->value("ZJUConnect/LoginDomain").toString(), casTicket, username, password, phone,
                             settings->value("Credential/TOTPSecret").toString(),
                             settings->value("ZJUConnect/ServerAddress").toString(),
                             settings->value("ZJUConnect/ServerPort").toInt(),
@@ -222,7 +226,8 @@ void MainWindow::initZjuConnect()
                         ssoLoginWebView->setCallbackServerHost(serverHost);
                         ssoLoginWebView->show();
                     }
-                    else if (settings->value("Credential/CertFile", "").toString().isEmpty() &&
+                    else if (((protocol == "atrust" && authtype == "psw") ||
+                              (protocol == "easyconnect" && settings->value("Credential/CertFile", "").toString().isEmpty())) &&
                              (username_.isEmpty() || password_.isEmpty()))
                     {
                         loginWindow = new LoginWindow(this);

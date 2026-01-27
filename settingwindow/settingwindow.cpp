@@ -144,8 +144,14 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings) :
                         ui->casRadioButton->setChecked(true);
                         ui->casLoginUrlLineEdit->setText(loginUrl);
                     }
+                    else if (authType == "auth/smsCheckCode")
+                    {
+                        ui->smsCheckCodeRadioButton->setChecked(true);
+                    }
                     else
+                    {
                         ui->pswRadioButton->setChecked(true);
+                    }
                     ui->loginDomainLineEdit->setText(loginDomain);
         });
         authInfoWindow->fetchAuthInfo(ui->serverAddressLineEdit->text());
@@ -266,8 +272,10 @@ void SettingWindow::applySettings()
 
     settings->setValue("ZJUConnect/Protocol", ui->atrustRadioButton->isChecked() ? "atrust" : "easyconnect");
     settings->setValue("ZJUConnect/LoginDomain", ui->loginDomainLineEdit->text());
-    settings->setValue("ZJUConnect/AuthType", ui->casRadioButton->isChecked() ? "cas" : "psw");
+    settings->setValue("ZJUConnect/AuthType", ui->casRadioButton->isChecked() ? "cas" : (ui->smsCheckCodeRadioButton->isChecked() ? "smsCheckCode" : "psw"));
     settings->setValue("ZJUConnect/CasLoginURL", ui->casLoginUrlLineEdit->text());
+    settings->setValue("ZJUConnect/PhoneCountryCode", ui->countryCodeLineEdit->text());
+    settings->setValue("ZJUConnect/PhoneNumber", ui->phoneNumberLineEdit->text());
 
     settings->setValue("ZJUConnect/MultiLine", ui->multiLineCheckBox->isChecked());
     settings->setValue("ZJUConnect/KeepAlive", ui->keepAliveCheckBox->isChecked());

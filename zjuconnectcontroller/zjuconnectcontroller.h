@@ -36,6 +36,7 @@ public:
         const QString& casTicket,
         const QString& username,
         const QString& password,
+        const QString& phone,
         const QString& totpSecret,
         const QString& server,
         int port,

@@ -119,6 +119,7 @@ void ZjuConnectController::start(
     const QString& casTicket,
     const QString& username,
     const QString& password,
+    const QString& phone,
     const QString& totpSecret,
     const QString& server,
     int port,
@@ -164,7 +165,7 @@ void ZjuConnectController::start(
         args.append("auth/" + authType);
     }
 
-    if (authType == "psw")
+    if (protocol == "atrust")
     {
         if (tempDir == nullptr)
         {
@@ -174,6 +175,12 @@ void ZjuConnectController::start(
         graphFile = tempDir->filePath("graph.jpg");
         args.append("-graph-code-file");
         args.append(graphFile);
+    }
+
+    if (!phone.isEmpty())
+    {
+        args.append("-phone");
+        args.append(phone);
     }
 
     if (!loginDomain.isEmpty())
