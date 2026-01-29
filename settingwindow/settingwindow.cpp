@@ -205,11 +205,16 @@ void SettingWindow::loadSettings()
     else
         ui->easyconnectRadioButton->setChecked(true);
     ui->loginDomainLineEdit->setText(settings->value("ZJUConnect/LoginDomain").toString());
-    if (settings->value("ZJUConnect/AuthType").toString() == "cas")
+    auto authType = settings->value("ZJUConnect/AuthType").toString();
+    if (authType == "smsCheckCode")
+        ui->smsCheckCodeRadioButton->setChecked(true);
+    else if (authType == "cas")
         ui->casRadioButton->setChecked(true);
     else
         ui->pswRadioButton->setChecked(true);
     ui->casLoginUrlLineEdit->setText(settings->value("ZJUConnect/CasLoginURL").toString());
+    ui->countryCodeLineEdit->setText(settings->value("ZJUConnect/PhoneCountryCode").toString());
+    ui->phoneNumberLineEdit->setText(settings->value("ZJUConnect/PhoneNumber").toString());
 
     ui->multiLineCheckBox->setChecked(settings->value("ZJUConnect/MultiLine").toBool());
     ui->keepAliveCheckBox->setChecked(settings->value("ZJUConnect/KeepAlive").toBool());

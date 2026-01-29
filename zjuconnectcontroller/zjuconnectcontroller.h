@@ -33,7 +33,6 @@ public:
         const QString& protocol,
         const QString& authType,
         const QString& loginDomain,
-        const QString& casTicket,
         const QString& username,
         const QString& password,
         const QString& phone,
@@ -80,6 +79,8 @@ signals:
     void graphCaptcha(const QString &graphFile);
 
     void smsCode();
+
+    void casAuth();
 
     void finished();
 

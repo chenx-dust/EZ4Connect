@@ -23,7 +23,7 @@ public:
     QUrl currentUrl() const;
 
 signals:
-    void loginCompleted(const QString &ticket);
+    void loginCompleted(const QString &url);
 
 private:
     void setupConnections();

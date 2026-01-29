@@ -55,6 +55,25 @@ void MainWindow::initZjuConnect()
         emit WriteToProcess(smsCode.toLocal8Bit() + "\n");
     });
 
+    connect(zjuConnectController, &ZjuConnectController::casAuth, this, [&]() {
+        ssoLoginWebView = new SsoLoginWebView(this);
+        connect(ssoLoginWebView, &SsoLoginWebView::loginCompleted,
+                [=](const QString &url) { emit WriteToProcess(url.toLocal8Bit() + "\n"); });
+
+        QString serverHost = settings->value("ZJUConnect/ServerAddress", "trust.hitsz.edu.cn").toString();
+        QString ssoUrl = settings->value("ZJUConnect/CasLoginURL").toString();
+        if (ssoUrl.isEmpty())
+            ssoUrl = "https://" + serverHost +
+                     "/passport/v1/public/casLogin?sfDomain=" + settings->value("ZJUConnect/LoginDomain").toString();
+        if (ssoUrl.startsWith("/"))
+            ssoUrl = "https://" + serverHost + ssoUrl;
+
+        addLog(QStringLiteral("单点登录：") + ssoUrl);
+        ssoLoginWebView->setInitialUrl(QUrl::fromUserInput(ssoUrl));
+        ssoLoginWebView->setCallbackServerHost(serverHost);
+        ssoLoginWebView->show();
+    });
+
     connect(zjuConnectController, &ZjuConnectController::finished, this, [&]()
     {
         if (
@@ -154,7 +173,7 @@ void MainWindow::initZjuConnect()
                         return;
                     }
 
-                    auto startZjuConnect = [this](const QString &username, const QString &password, const QString &casTicket) {
+                    auto startZjuConnect = [this](const QString &username, const QString &password) {
                         QString program_path = Utils::getCorePath();
 						QString bind_prefix = settings->value("ZJUConnect/OutsideAccess", false).toBool() ? "[::]:" : "127.0.0.1:";
 
@@ -174,7 +193,7 @@ void MainWindow::initZjuConnect()
                         zjuConnectController->start(
                             program_path, settings->value("ZJUConnect/Protocol").toString(),
                             settings->value("ZJUConnect/AuthType").toString(),
-                            settings->value("ZJUConnect/LoginDomain").toString(), casTicket, username, password, phone,
+                            settings->value("ZJUConnect/LoginDomain").toString(), username, password, phone,
                             settings->value("Credential/TOTPSecret").toString(),
                             settings->value("ZJUConnect/ServerAddress").toString(),
                             settings->value("ZJUConnect/ServerPort").toInt(),
@@ -206,27 +225,7 @@ void MainWindow::initZjuConnect()
                             settings->value("ZJUConnect/ExtraArguments", "").toString());
                 	};
 
-                    if (protocol == "atrust" && authtype == "cas")
-                    {
-                        ssoLoginWebView = new SsoLoginWebView(this);
-                        connect(ssoLoginWebView, &SsoLoginWebView::loginCompleted, [=](const QString &ticket) {
-                            startZjuConnect(username_, password_, ticket);
-                        });
-
-                        QString serverHost = settings->value("ZJUConnect/ServerAddress", "trust.hitsz.edu.cn").toString();
-                        QString ssoUrl = settings->value("ZJUConnect/CasLoginURL").toString();
-                        if (ssoUrl.isEmpty())
-                            ssoUrl = "https://" + serverHost + "/passport/v1/public/casLogin?sfDomain=" +
-                                     settings->value("ZJUConnect/LoginDomain").toString();
-                        if (ssoUrl.startsWith("/"))
-                            ssoUrl = "https://" + serverHost + ssoUrl;
-
-                        addLog(QStringLiteral("单点登录：") + ssoUrl);
-                        ssoLoginWebView->setInitialUrl(QUrl::fromUserInput(ssoUrl));
-                        ssoLoginWebView->setCallbackServerHost(serverHost);
-                        ssoLoginWebView->show();
-                    }
-                    else if (((protocol == "atrust" && authtype == "psw") ||
+                    if (((protocol == "atrust" && authtype == "psw") ||
                               (protocol == "easyconnect" && settings->value("Credential/CertFile", "").toString().isEmpty())) &&
                              (username_.isEmpty() || password_.isEmpty()))
                     {
@@ -242,14 +241,14 @@ void MainWindow::initZjuConnect()
                                     settings->setValue("Credential/Password", QString(password.toUtf8().toBase64()));
                                     settings->sync();
                                 }
-                                startZjuConnect(username, password, "");
+                                startZjuConnect(username, password);
                             }
                         );
                         loginWindow->show();
                     }
                     else
                     {
-                        startZjuConnect(username_, password_, "");
+                        startZjuConnect(username_, password_);
                     }
                 }
                 else

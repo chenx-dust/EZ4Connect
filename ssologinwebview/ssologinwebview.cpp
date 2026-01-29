@@ -49,8 +49,7 @@ void SsoLoginWebView::setupConnections()
                 if (request.navigationType() == QWebEngineNavigationRequest::NavigationType::RedirectNavigation &&
                     request.url().host() == callbackServerHost)
                 {
-                    QUrlQuery queries(request.url());
-                    loginCompleted(queries.queryItemValue("ticket"));
+                    loginCompleted(request.url().toString());
                     request.reject();
                     this->close();
                 }

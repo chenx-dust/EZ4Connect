@@ -430,6 +430,8 @@ void Utils::resetDefaultSettings(QSettings& settings)
     settings.setValue("ZJUConnect/LoginDomain", "hitcas");
     settings.setValue("ZJUConnect/AuthType", "cas");
     settings.setValue("ZJUConnect/CasLoginURL", "");
+    settings.setValue("ZJUConnect/PhoneCountryCode", "86");
+    settings.setValue("ZJUConnect/PhoneNumber", "");
 
     settings.setValue("ZJUConnect/MultiLine", false);
     settings.setValue("ZJUConnect/KeepAlive", false);

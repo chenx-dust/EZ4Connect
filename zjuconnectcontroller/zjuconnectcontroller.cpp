@@ -36,9 +36,13 @@ ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
             {
                 emit graphCaptcha(graphFile);
             }
-            if (output.contains("Please enter the SMS verification code: ") || output.contains("Please enter your SMS code:"))
+            else if (output.contains("Please enter the SMS verification code: ") || output.contains("Please enter your SMS code:"))
             {
                 emit smsCode();
+            }
+            else if (output.contains("Please enter the callback url:"))
+            {
+                emit casAuth();
             }
             else if (output.contains("graph check code still required after second login attempt"))
             {
@@ -116,7 +120,6 @@ void ZjuConnectController::start(
     const QString& protocol,
     const QString& authType,
     const QString& loginDomain,
-    const QString& casTicket,
     const QString& username,
     const QString& password,
     const QString& phone,
@@ -167,6 +170,7 @@ void ZjuConnectController::start(
 
     if (protocol == "atrust")
     {
+        // 图形验证码文件路径
         if (tempDir == nullptr)
         {
             tempDir = new QTemporaryDir;
@@ -175,6 +179,16 @@ void ZjuConnectController::start(
         graphFile = tempDir->filePath("graph.jpg");
         args.append("-graph-code-file");
         args.append(graphFile);
+
+        // 存放 Client Data
+        QString path = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+        QDir dir(path);
+        if (!dir.exists())
+        {
+            dir.mkpath(".");
+        }
+        args.append("-client-data-file");
+        args.append(dir.filePath("client-data.json"));
     }
 
     if (!phone.isEmpty())
@@ -187,12 +201,6 @@ void ZjuConnectController::start(
     {
         args.append("-login-domain");
         args.append(loginDomain);
-    }
-
-    if (!casTicket.isEmpty())
-    {
-        args.append("-cas-ticket");
-        args.append(casTicket);
     }
 
     if (!server.isEmpty())
