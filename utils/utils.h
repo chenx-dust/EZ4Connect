@@ -43,6 +43,10 @@ namespace Utils
     bool isRunningAsAdmin();
 
     bool relaunchAsAdmin(const QStringList &extraArgs = {});
+
+    QString getClientDataPath();
+
+    void clearClientData();
 }
 
 #endif //UTILS_H

@@ -181,14 +181,8 @@ void ZjuConnectController::start(
         args.append(graphFile);
 
         // 存放 Client Data
-        QString path = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-        QDir dir(path);
-        if (!dir.exists())
-        {
-            dir.mkpath(".");
-        }
         args.append("-client-data-file");
-        args.append(dir.filePath("client-data.json"));
+        args.append(Utils::getClientDataPath());
     }
 
     if (!phone.isEmpty())

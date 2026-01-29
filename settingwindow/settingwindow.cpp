@@ -45,6 +45,8 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings) :
         if (!(ui->atrustRadioButton->isChecked() && ui->casRadioButton->isChecked()) && !ui->certFileLineEdit->text().isEmpty() &&
             !Utils::credentialCheck(ui->usernameLineEdit->text(), ui->passwordLineEdit->text()))
             return;
+        if (isAuthSettingChanged())
+            Utils::clearClientData();
         applySettings();
         accept();
     });
@@ -53,6 +55,8 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings) :
         if (!(ui->atrustRadioButton->isChecked() && ui->casRadioButton->isChecked()) && !ui->certFileLineEdit->text().isEmpty() &&
             !Utils::credentialCheck(ui->usernameLineEdit->text(), ui->passwordLineEdit->text()))
             return;
+        if (isAuthSettingChanged())
+            Utils::clearClientData();
         applySettings();
         loadSettings();
     });
@@ -308,4 +312,28 @@ void SettingWindow::applySettings()
     settings->setValue("Common/ConfigVersion", Utils::CONFIG_VERSION);
 
     settings->sync();
+}
+
+bool SettingWindow::isAuthSettingChanged()
+{
+    if (ui->atrustRadioButton->isChecked() == false &&
+        settings->value("ZJUConnect/Protocol").toString() != "atrust")
+        return false;
+    if (ui->atrustRadioButton->isChecked() == true &&
+        settings->value("ZJUConnect/Protocol").toString() != "atrust")
+        return true;
+    QString currentAuthType;
+    if (ui->casRadioButton->isChecked())
+        currentAuthType = "cas";
+    else if (ui->smsCheckCodeRadioButton->isChecked())
+        currentAuthType = "smsCheckCode";
+    else
+        currentAuthType = "psw";
+
+    return currentAuthType != settings->value("ZJUConnect/AuthType").toString() ||
+           ui->loginDomainLineEdit->text() != settings->value("ZJUConnect/LoginDomain").toString() ||
+           (currentAuthType == "cas" &&
+            ui->casLoginUrlLineEdit->text() != settings->value("ZJUConnect/CasLoginURL").toString()) ||
+           ui->serverAddressLineEdit->text() != settings->value("ZJUConnect/ServerAddress").toString() ||
+           ui->serverPortSpinBox->value() != settings->value("ZJUConnect/ServerPort").toInt();
 }

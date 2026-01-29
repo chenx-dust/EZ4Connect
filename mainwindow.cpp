@@ -115,13 +115,13 @@ MainWindow::MainWindow(QWidget *parent) :
                 }
             });
 
-    // 帮助-清除系统代理
+    // 文件-清除系统代理
     connect(ui->disableProxyAction, &QAction::triggered,
             [&]()
             {
                 QMessageBox messageBox(this);
-                messageBox.setWindowTitle("清除系统代理");
-                messageBox.setText("是否清除系统代理？");
+                messageBox.setWindowTitle("禁用系统代理");
+                messageBox.setText("是否禁用系统代理？");
 
                 messageBox.addButton(QMessageBox::Yes)->setText("是");
                 messageBox.addButton(QMessageBox::No)->setText("否");
@@ -141,7 +141,28 @@ MainWindow::MainWindow(QWidget *parent) :
                     Utils::clearSystemProxy();
                 }
 
-                addLog("已清除系统代理设置");
+                addLog("已禁用系统代理设置");
+            });
+
+    // 文件-清理登录数据
+    connect(ui->clearClientDataAction, &QAction::triggered, this,
+            [&]()
+            {
+                QMessageBox messageBox(this);
+                messageBox.setWindowTitle("清理登录缓存");
+                messageBox.setText("是否清理登录缓存？");
+
+                messageBox.addButton(QMessageBox::Yes)->setText("是");
+                messageBox.addButton(QMessageBox::No)->setText("否");
+                messageBox.setDefaultButton(QMessageBox::Yes);
+
+                if (messageBox.exec() == QMessageBox::No)
+                {
+                    return;
+                }
+
+                Utils::clearClientData();
+                addLog("已清理登录缓存");
             });
 
     // 帮助-检查更新

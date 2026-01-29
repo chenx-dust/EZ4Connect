@@ -8,6 +8,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QCoreApplication>
+#include <QStandardPaths>
 #if defined(Q_OS_WIN)
 #include <windows.h>
 #include <shellapi.h>
@@ -398,6 +399,22 @@ bool Utils::credentialCheck(const QString &username, const QString &password)
     }
 
     return true;
+}
+
+QString Utils::getClientDataPath()
+{
+    QString path = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    QDir dir(path);
+    if (!dir.exists())
+    {
+        dir.mkpath(".");
+    }
+    return dir.filePath("client-data.json");
+}
+
+void Utils::clearClientData()
+{
+    QFile::remove(getClientDataPath());
 }
 
 void Utils::resetDefaultSettings(QSettings& settings)

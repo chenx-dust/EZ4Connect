@@ -146,7 +146,7 @@ Line 2
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>30</height>
+     <height>33</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -163,8 +163,6 @@ Line 2
     <property name="title">
      <string>帮助</string>
     </property>
-    <addaction name="disableProxyAction"/>
-    <addaction name="openLogAction"/>
     <addaction name="checkUpdateAction"/>
     <addaction name="projectAction"/>
     <addaction name="aboutAction"/>
@@ -173,6 +171,9 @@ Line 2
     <property name="title">
      <string>文件</string>
     </property>
+    <addaction name="disableProxyAction"/>
+    <addaction name="clearClientDataAction"/>
+    <addaction name="openLogAction"/>
     <addaction name="settingAction"/>
     <addaction name="exitAction"/>
    </widget>
@@ -216,7 +217,7 @@ Line 2
   </action>
   <action name="disableProxyAction">
    <property name="text">
-    <string>清除系统代理</string>
+    <string>禁用系统代理</string>
    </property>
   </action>
   <action name="action">
@@ -240,6 +241,11 @@ Line 2
    </property>
    <property name="toolTip">
     <string>打开核心程序的日志文件</string>
+   </property>
+  </action>
+  <action name="clearClientDataAction">
+   <property name="text">
+    <string>清理登录缓存</string>
    </property>
   </action>
  </widget>

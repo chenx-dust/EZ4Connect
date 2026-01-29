@@ -24,6 +24,7 @@ public:
 private:
     void loadSettings();
     void applySettings();
+    bool isAuthSettingChanged();
 
     Ui::SettingWindow *ui;
 
