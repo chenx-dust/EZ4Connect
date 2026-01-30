@@ -33,7 +33,7 @@ AuthInfoWindow::AuthInfoWindow(QWidget *parent)
             [this]() { stdoutBuf_ += proc_->readAllStandardError(); });
     connect(proc_, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
             [this](int exitCode, QProcess::ExitStatus exitStatus) {
-                QString output = Utils::ConsoleOutputToQString(stdoutBuf_);
+                QString output = Utils::consoleOutputToQString(stdoutBuf_);
                 if (mainWindow)
                     mainWindow->addLog("可用认证方式：\n" + output);
                 QJsonParseError jsonError;

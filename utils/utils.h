@@ -16,7 +16,7 @@ namespace Utils
 
     constexpr inline int CONFIG_VERSION = 5;
 
-    QString ConsoleOutputToQString(const QByteArray &byteArray);
+    QString consoleOutputToQString(const QByteArray &byteArray);
 
     void setWidgetFixedWhenHidden(QWidget *widget);
 
@@ -44,9 +44,15 @@ namespace Utils
 
     bool relaunchAsAdmin(const QStringList &extraArgs = {});
 
+    void clearClientData();
+    
     QString getClientDataPath();
 
-    void clearClientData();
+    QString getLogFilePath();
+
+    QString getConfigPath();
+
+    QString getArgValue(const QStringList &args, const QString &key);
 }
 
 #endif //UTILS_H

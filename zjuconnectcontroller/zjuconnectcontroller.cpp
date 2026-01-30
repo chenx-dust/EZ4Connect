@@ -7,12 +7,14 @@ ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
     zjuConnectProcess = new QProcess(this);
 
     // 初始化日志文件
-    logFile = new QFile(getLogFilePath());
+    logFile = new QFile(Utils::getLogFilePath());
     if (logFile->open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate))
     {
         logStream = new QTextStream(logFile);
         logStream->setEncoding(QStringConverter::Utf8);
-        QString startMsg = "=== Log started at " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + " ===\n";
+        QString startMsg = "=== Log started at " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+                           " with " + QApplication::applicationDisplayName() + " " + QApplication::applicationVersion() +
+                           " ===\n";
         *logStream << startMsg;
         logStream->flush();
     }
@@ -80,14 +82,14 @@ ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
 
     connect(zjuConnectProcess, &QProcess::readyReadStandardOutput, this, [&, outputProcess]()
     {
-        QString output = Utils::ConsoleOutputToQString(zjuConnectProcess->readAllStandardOutput());
+        QString output = Utils::consoleOutputToQString(zjuConnectProcess->readAllStandardOutput());
 
 		outputProcess(output);
     });
 
     connect(zjuConnectProcess, &QProcess::readyReadStandardError, this, [&, outputProcess]()
     {
-        QString output = Utils::ConsoleOutputToQString(zjuConnectProcess->readAllStandardError());
+        QString output = Utils::consoleOutputToQString(zjuConnectProcess->readAllStandardError());
 
 		outputProcess(output);
     });
@@ -421,15 +423,4 @@ ZjuConnectController::~ZjuConnectController()
         delete logFile;
         logFile = nullptr;
     }
-}
-
-QString ZjuConnectController::getLogFilePath()
-{
-    QString logPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    QDir logDir(logPath);
-    if (!logDir.exists())
-    {
-        logDir.mkpath(".");
-    }
-    return logDir.filePath("zjuconnect.log");
 }

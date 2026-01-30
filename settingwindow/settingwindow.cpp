@@ -78,7 +78,7 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings) :
             [&]()
             {
                 QString filename = QFileDialog::getOpenFileName(this, "选择配置文件",
-                    QStandardPaths::writableLocation(QStandardPaths::ConfigLocation),
+                    QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
                     "Config Ini(*.ini);;All Files(*.*)");
                 if (filename.isEmpty()) {
                     QMessageBox::critical(this, "错误", "未选择配置文件，不会带来任何更改。");
@@ -96,7 +96,7 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings) :
             [&]()
             {
                 QString filename = QFileDialog::getSaveFileName(this, "选择保存位置",
-                    QStandardPaths::writableLocation(QStandardPaths::ConfigLocation),
+                    QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
                     "Config Ini(*.ini);;All Files(*.*)");
                 if (filename.isEmpty())
                 {

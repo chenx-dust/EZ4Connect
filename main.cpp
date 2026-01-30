@@ -11,7 +11,7 @@
 
 int main(int argc, char *argv[])
 {
-    SingleApplication app(argc, argv);
+    SingleApplication app(argc, argv, false, SingleApplication::Mode::System);
     QApplication::setApplicationName(Utils::APP_NAME);
     QApplication::setApplicationDisplayName(Utils::APP_NAME);
     QApplication::setApplicationVersion(PROJ_VER);

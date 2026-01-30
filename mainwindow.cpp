@@ -1,4 +1,3 @@
-#include <QStandardPaths>
 #include <QMessageBox>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -20,10 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     zjuConnectController = nullptr;
 
-    settings = new QSettings(
-        QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/config.ini",
-        QSettings::IniFormat
-    );
+    settings = new QSettings(Utils::getConfigPath(), QSettings::IniFormat);
     diagnosisContext = nullptr;
 
     upgradeSettings();
@@ -102,7 +98,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->openLogAction, &QAction::triggered, this,
             [&]()
             {
-                QString logFilePath = ZjuConnectController::getLogFilePath();
+                QString logFilePath = Utils::getLogFilePath();
                 QFileInfo logFileInfo(logFilePath);
                 
                 if (logFileInfo.exists())
@@ -200,9 +196,18 @@ MainWindow::MainWindow(QWidget *parent) :
 		    {
 		        if (isFirstTimeSetMode)
 		        {
-		            isFirstTimeSetMode = false;
-		            if (settings->value("Common/ConnectAfterStart", false).toBool())
-		            {
+                    isFirstTimeSetMode = false;
+                    bool shouldConnect = settings->value("Common/ConnectAfterStart", false).toBool();
+                    for (const QString &arg : qApp->arguments())
+                    {
+                        if (arg == "--connect")
+                        {
+                            shouldConnect = true;
+                            break;
+                        }
+                    }
+                    if (shouldConnect)
+                    {
 		                ui->pushButton1->click();
 		            }
 		        }
@@ -334,7 +339,8 @@ void MainWindow::clearLog()
     ui->logPlainTextEdit->appendPlainText(
         "欢迎使用 " + QApplication::applicationDisplayName() + "\n"
         "当前版本：" + QApplication::applicationVersion() + "\n"
-        "系统版本：" + QSysInfo::prettyProductName());
+        "系统版本：" + QSysInfo::prettyProductName() + "\n"
+        "配置路径：" + Utils::getConfigPath() + "\n");
 }
 
 void MainWindow::checkUpdate()

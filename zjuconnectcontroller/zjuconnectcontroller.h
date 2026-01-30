@@ -26,8 +26,6 @@ public:
 
     ~ZjuConnectController() override;
 
-    static QString getLogFilePath();
-
     void start(
         const QString& program,
         const QString& protocol,

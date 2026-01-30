@@ -18,7 +18,7 @@
 
 #include "utils.h"
 
-QString Utils::ConsoleOutputToQString(const QByteArray &byteArray)
+QString Utils::consoleOutputToQString(const QByteArray &byteArray)
 {
     static QString codeName = "";
     if (codeName == "UTF-8")
@@ -63,6 +63,28 @@ QString Utils::ConsoleOutputToQString(const QByteArray &byteArray)
             return QString::fromLocal8Bit(byteArray);
         }
     }
+}
+
+QString Utils::getArgValue(const QStringList &args, const QString &key)
+{
+    const QString prefix = key + "=";
+    for (int i = 0; i < args.size(); ++i)
+    {
+        const QString &arg = args.at(i);
+        if (arg == key)
+        {
+            if (i + 1 < args.size())
+            {
+                return args.at(i + 1);
+            }
+            return "";
+        }
+        if (arg.startsWith(prefix))
+        {
+            return arg.mid(prefix.size());
+        }
+    }
+    return "";
 }
 
 void Utils::setWidgetFixedWhenHidden(QWidget *widget)
@@ -182,12 +204,17 @@ bool Utils::isRunningAsAdmin()
 bool Utils::relaunchAsAdmin(const QStringList &extraArgs)
 {
     QString program = QCoreApplication::applicationFilePath();
-    QStringList args = QCoreApplication::arguments();
+    QStringList args;
 
-    if (!args.isEmpty())
+    if (Utils::getArgValue(args, "--config-path").isEmpty())
     {
-        args.removeFirst();
+        args << "--config-path" << Utils::getConfigPath();
     }
+    if (Utils::getArgValue(args, "--client-data-path").isEmpty())
+    {
+        args << "--client-data-path" << Utils::getClientDataPath();
+    }
+    args << "--connect";
 
     args.append(extraArgs);
 
@@ -236,11 +263,13 @@ bool Utils::relaunchAsAdmin(const QStringList &extraArgs)
     QString escaped = arguments;
     escaped.replace("\\", "\\\\");
     escaped.replace("\"", "\\\"");
-    QString script = "do shell script \"" + escaped + "\" with administrator privileges";
+    QStringList scriptArgs;
+    scriptArgs << "-e";
+    scriptArgs << "do shell script \"" + escaped + "\" with administrator privileges";
 
-    qDebug() << script;
+    qDebug() << scriptArgs;
 
-    return QProcess::startDetached("osascript", QStringList() << "-e" << script);
+    return QProcess::startDetached("osascript", scriptArgs);
 #elif defined(Q_OS_UNIX)
     QStringList elevatedArgs;
     elevatedArgs << program;
@@ -280,10 +309,9 @@ void Utils::setAutoStart(bool enable)
 #elif defined(Q_OS_MACOS)
     {
         QStringList args;
-        args << "-e tell application \"System Events\" to delete login item\"" + macOSAppBundleName() + "\"";
+        args << "-e" << "tell application \"System Events\" to delete login item \"" + macOSAppBundleName() + "\"";
         qDebug() << args;
 
-        // int result = QProcess::execute("osascript", args);
         QProcess process;
         process.start("osascript", args);
         process.waitForFinished();
@@ -304,7 +332,7 @@ void Utils::setAutoStart(bool enable)
     if (enable)
     {
         QStringList args;
-        args << "-e tell application \"System Events\" to make login item at end with properties {path:\"" +
+        args << "-e" << "tell application \"System Events\" to make login item at end with properties {path:\"" +
                     macOSAppBundlePath() + "\", hidden:false}";
         qDebug() << args;
 
@@ -325,7 +353,7 @@ void Utils::setAutoStart(bool enable)
         }
     }
 #elif defined(Q_OS_LINUX)
-    QString autostartPath = QDir::homePath() + "/.config/autostart/";
+    QString autostartPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/autostart/";
     QDir dir(autostartPath);
     QString desktopFilePath = autostartPath + QApplication::applicationName() + ".desktop";
     QFile desktopFile(desktopFilePath);
@@ -401,10 +429,28 @@ bool Utils::credentialCheck(const QString &username, const QString &password)
     return true;
 }
 
+void Utils::clearClientData()
+{
+    QFile::remove(getClientDataPath());
+}
+
 QString Utils::getClientDataPath()
 {
-    QString path = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-    QDir dir(path);
+    QString overridePath = Utils::getArgValue(QCoreApplication::arguments(), "--client-data-path");
+    if (!overridePath.isEmpty())
+    {
+        QFileInfo info(overridePath);
+        QDir parentDir = info.dir();
+        if (!parentDir.exists())
+        {
+            parentDir.mkpath(".");
+        }
+        qDebug() << "Using override client data path:" << overridePath;
+        return overridePath;
+    }
+
+    QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    QDir dir(defaultPath);
     if (!dir.exists())
     {
         dir.mkpath(".");
@@ -412,9 +458,39 @@ QString Utils::getClientDataPath()
     return dir.filePath("client-data.json");
 }
 
-void Utils::clearClientData()
+QString Utils::getLogFilePath()
 {
-    QFile::remove(getClientDataPath());
+    QString logPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    QDir logDir(logPath);
+    if (!logDir.exists())
+    {
+        logDir.mkpath(".");
+    }
+    return logDir.filePath("zjuconnect.log");
+}
+
+QString Utils::getConfigPath()
+{
+    QString overridePath = Utils::getArgValue(QCoreApplication::arguments(), "--config-path");
+    if (!overridePath.isEmpty())
+    {
+        QFileInfo info(overridePath);
+        QDir parentDir = info.dir();
+        if (!parentDir.exists())
+        {
+            parentDir.mkpath(".");
+        }
+        qDebug() << "Using override config path:" << overridePath;
+        return overridePath;
+    }
+
+    QString configPath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+    QDir configDir(configPath);
+    if (!configDir.exists())
+    {
+        configDir.mkpath(".");
+    }
+    return configDir.filePath("config.ini");
 }
 
 void Utils::resetDefaultSettings(QSettings& settings)
@@ -454,7 +530,7 @@ void Utils::resetDefaultSettings(QSettings& settings)
     settings.setValue("ZJUConnect/KeepAlive", false);
     settings.setValue("ZJUConnect/OutsideAccess", false);
 
-    settings.setValue("ZJUConnect/SkipDomainResource", true);
+    settings.setValue("ZJUConnect/SkipDomainResource", false);
     settings.setValue("ZJUConnect/DisableServerConfig", false);
     settings.setValue("ZJUConnect/ProxyAll", false);
 
