@@ -323,8 +323,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    event->ignore();
-    hide();
+    if (isZjuConnectLinked)
+    {
+        event->ignore();
+        hide();
+        showNotification("EZ4Connect", "程序已最小化到系统托盘，单击图标可恢复窗口。", QSystemTrayIcon::MessageIcon::Information);
+    }
+    else
+    {
+        event->accept();
+    }
 }
 
 void MainWindow::addLog(const QString &log)
