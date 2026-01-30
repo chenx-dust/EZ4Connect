@@ -32,6 +32,14 @@ void SsoLoginWebView::setupConnections()
     connect(ui->backButton, &QToolButton::clicked, ui->webEngineView, &QWebEngineView::back);
     connect(ui->forwardButton, &QToolButton::clicked, ui->webEngineView, &QWebEngineView::forward);
     connect(ui->reloadButton, &QToolButton::clicked, ui->webEngineView, &QWebEngineView::reload);
+    connect(ui->dialogButtonBox, &QDialogButtonBox::rejected, this, [&]()
+    {
+        if (!loginCompletedEmitted)
+        {
+            loginCompletedEmitted = true;
+            loginCompleted(QString());
+        }
+    });
 
     connect(ui->addressLineEdit, &QLineEdit::returnPressed, this, [&]()
     {
@@ -49,7 +57,11 @@ void SsoLoginWebView::setupConnections()
                 if (request.navigationType() == QWebEngineNavigationRequest::NavigationType::RedirectNavigation &&
                     request.url().host() == callbackServerHost)
                 {
-                    loginCompleted(request.url().toString());
+                    if (!loginCompletedEmitted)
+                    {
+                        loginCompletedEmitted = true;
+                        loginCompleted(request.url().toString());
+                    }
                     request.reject();
                     this->close();
                 }
@@ -75,4 +87,15 @@ void SsoLoginWebView::setCallbackServerHost(const QString &host)
 QUrl SsoLoginWebView::currentUrl() const
 {
     return ui->webEngineView->url();
+}
+
+void SsoLoginWebView::closeEvent(QCloseEvent *event)
+{
+    if (!loginCompletedEmitted)
+    {
+        loginCompletedEmitted = true;
+        loginCompleted(QString());
+    }
+
+    QDialog::closeEvent(event);
 }

@@ -133,6 +133,9 @@ void MainWindow::initZjuConnect()
         case ZJU_ERROR::PROGRAM_NOT_FOUND:
             QMessageBox::critical(this, "错误", "程序未找到！\n请检查核心是否在正确路径下，检查是否解压在当前目录下。");
             break;
+        case ZJU_ERROR::INTERACTIVE_ERROR:
+            QMessageBox::critical(this, "错误", "登录失败！\n请检查您的输入是否正确，检查是否完成 SSO 登录。");
+            break;
         case ZJU_ERROR::OTHER:
             QMessageBox::critical(this, "错误", "其它错误！\n未知原因，可将日志反馈给开发者以便调查。");
             break;

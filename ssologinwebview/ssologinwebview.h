@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QUrl>
 #include <QString>
+#include <QCloseEvent>
 
 namespace Ui
 {
@@ -25,11 +26,15 @@ public:
 signals:
     void loginCompleted(const QString &url);
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
 private:
     void setupConnections();
 
     Ui::SsoLoginWebView *ui;
     QString callbackServerHost;
+    bool loginCompletedEmitted = false;
 };
 
 #endif // SSOLOGINWEBVIEW_H

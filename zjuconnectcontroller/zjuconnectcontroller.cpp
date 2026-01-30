@@ -70,6 +70,10 @@ ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
             {
                 emit error(ZJU_ERROR::OTHER_LOGIN_FAILED);
             }
+            else if (output.contains("unexpected newline"))
+            {
+                emit error(ZJU_ERROR::INTERACTIVE_ERROR);
+            }
             else if (output.contains("client setup error"))
             {
                 emit error(ZJU_ERROR::CLIENT_FAILED);
