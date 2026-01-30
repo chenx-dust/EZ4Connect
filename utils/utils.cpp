@@ -497,6 +497,7 @@ void Utils::resetDefaultSettings(QSettings& settings)
     settings.setValue("ZJUConnect/HttpPort", 11081);
     settings.setValue("ZJUConnect/ShadowsocksURL", "");
     settings.setValue("ZJUConnect/DialDirectProxy", "");
+    settings.setValue("ZJUConnect/UpdateBestNodesInterval", 300);
 
     settings.setValue("ZJUConnect/Protocol", "atrust");
     settings.setValue("ZJUConnect/LoginDomain", "hitcas");
@@ -520,6 +521,7 @@ void Utils::resetDefaultSettings(QSettings& settings)
     settings.setValue("ZJUConnect/TunMode", false);
     settings.setValue("ZJUConnect/AddRoute", false);
     settings.setValue("ZJUConnect/DNSHijack", false);
+    settings.setValue("ZJUConnect/TcpTunnelMode", false);
 
 
     settings.setValue("ZJUConnect/TcpPortForwarding", "");

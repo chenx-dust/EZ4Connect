@@ -203,6 +203,8 @@ void SettingWindow::loadSettings()
     ui->httpPortSpinBox->setValue(settings->value("ZJUConnect/HttpPort").toInt());
     ui->shadowsocksUrlLineEdit->setText(settings->value("ZJUConnect/ShadowsocksURL").toString());
     ui->dialDirectProxyLineEdit->setText(settings->value("ZJUConnect/DialDirectProxy").toString());
+    ui->updateBestNodesIntervalSpinBox->setValue(
+        settings->value("ZJUConnect/UpdateBestNodesInterval", 300).toInt());
 
     if (settings->value("ZJUConnect/Protocol").toString() == "atrust")
         ui->atrustRadioButton->setChecked(true);
@@ -235,6 +237,7 @@ void SettingWindow::loadSettings()
     ui->tunCheckBox->setChecked(settings->value("ZJUConnect/TunMode").toBool());
     ui->routeCheckBox->setChecked(settings->value("ZJUConnect/AddRoute").toBool());
     ui->dnsHijackCheckBox->setChecked(settings->value("ZJUConnect/DNSHijack").toBool());
+    ui->tcpTunnelModeCheckBox->setChecked(settings->value("ZJUConnect/TcpTunnelMode").toBool());
 
     tcpPortForwarding = settings->value("ZJUConnect/TcpPortForwarding").toString();
     udpPortForwarding = settings->value("ZJUConnect/UdpPortForwarding").toString();
@@ -278,6 +281,7 @@ void SettingWindow::applySettings()
     settings->setValue("ZJUConnect/HttpPort", ui->httpPortSpinBox->value());
     settings->setValue("ZJUConnect/ShadowsocksURL", ui->shadowsocksUrlLineEdit->text());
     settings->setValue("ZJUConnect/DialDirectProxy", ui->dialDirectProxyLineEdit->text());
+    settings->setValue("ZJUConnect/UpdateBestNodesInterval", ui->updateBestNodesIntervalSpinBox->value());
 
     settings->setValue("ZJUConnect/Protocol", ui->atrustRadioButton->isChecked() ? "atrust" : "easyconnect");
     settings->setValue("ZJUConnect/LoginDomain", ui->loginDomainLineEdit->text());
@@ -301,6 +305,7 @@ void SettingWindow::applySettings()
     settings->setValue("ZJUConnect/TunMode", ui->tunCheckBox->isChecked());
     settings->setValue("ZJUConnect/AddRoute", ui->routeCheckBox->isChecked());
     settings->setValue("ZJUConnect/DNSHijack", ui->dnsHijackCheckBox->isChecked());
+    settings->setValue("ZJUConnect/TcpTunnelMode", ui->tcpTunnelModeCheckBox->isChecked());
 
 
     settings->setValue("ZJUConnect/TcpPortForwarding", tcpPortForwarding);

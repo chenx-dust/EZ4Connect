@@ -147,6 +147,7 @@ void ZjuConnectController::start(
     const QString& httpBind,
     const QString& shadowsocksUrl,
     const QString& dialDirectProxy,
+    int updateBestNodesInterval,
     bool disableMultiLine,
     bool disableKeepAlive,
     bool skipDomainResource,
@@ -158,6 +159,7 @@ void ZjuConnectController::start(
     bool tunMode,
     bool addRoute,
     bool dnsHijack,
+    bool tcpTunnelMode,
     const QString& tcpPortForwarding,
     const QString& udpPortForwarding,
     const QString& customDNS,
@@ -297,6 +299,11 @@ void ZjuConnectController::start(
         }
     }
 
+    if (tcpTunnelMode)
+    {
+        args.append("-tcp-tunnel-mode");
+    }
+
     if (debugDump)
     {
         args.append("-debug-dump");
@@ -324,6 +331,12 @@ void ZjuConnectController::start(
     {
         args.append("-dial-direct-proxy");
         args.append(dialDirectProxy);
+    }
+
+    if (updateBestNodesInterval != 300)
+    {
+        args.append("-update-best-nodes-interval");
+        args.append(QString::number(updateBestNodesInterval));
     }
 
     if (!tcpPortForwarding.isEmpty())

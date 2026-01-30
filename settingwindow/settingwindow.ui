@@ -632,6 +632,13 @@
            </property>
           </widget>
          </item>
+         <item row="4" column="0" colspan="3">
+          <widget class="QCheckBox" name="tcpTunnelModeCheckBox">
+           <property name="text">
+            <string>禁用 L3 隧道（aTrust 兼容模式）</string>
+           </property>
+          </widget>
+         </item>
          <item row="2" column="2">
           <widget class="QCheckBox" name="debugCheckBox">
            <property name="text">
@@ -750,7 +757,14 @@
        <item row="8" column="0">
         <widget class="QLabel" name="zjuConnectTabLabel10">
          <property name="text">
-          <string>Shadowsocks 服务器</string>
+          <string>Shadowsocks 代理</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <widget class="QLabel" name="zjuConnectTabLabel12">
+         <property name="text">
+          <string>节点优选间隔（秒）</string>
          </property>
         </widget>
        </item>
@@ -768,6 +782,16 @@
         <widget class="QLabel" name="zjuConnectTabLabel6">
          <property name="text">
           <string>HTTP 代理端口</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="1" colspan="3">
+        <widget class="QSpinBox" name="updateBestNodesIntervalSpinBox">
+         <property name="maximum">
+          <number>2147483647</number>
+         </property>
+         <property name="value">
+          <number>300</number>
          </property>
         </widget>
        </item>
