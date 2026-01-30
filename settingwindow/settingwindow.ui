@@ -341,6 +341,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="countryCodeLineEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>45</width>
@@ -361,6 +364,9 @@
             </item>
             <item>
              <widget class="QLineEdit" name="phoneNumberLineEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="placeholderText">
                <string>手机号码，仅用于短信验证</string>
               </property>
