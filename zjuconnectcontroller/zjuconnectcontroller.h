@@ -93,6 +93,7 @@ private:
 
     QFile *logFile = nullptr;
     QTextStream *logStream = nullptr;
+    bool stopRequested = false;
 };
 
 #endif //ZJUCONNECTCONTROLLER_H

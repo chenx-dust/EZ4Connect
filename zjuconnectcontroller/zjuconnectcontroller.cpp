@@ -96,6 +96,10 @@ ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
 
     connect(zjuConnectProcess, &QProcess::errorOccurred, this, [&](QProcess::ProcessError err)
     {
+        if (stopRequested)
+        {
+            return;
+        }
         QString timeString = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
         QString errorString = zjuConnectProcess->errorString();
         emit outputRead(timeString + " 退出原因：" + errorString);
@@ -109,6 +113,9 @@ ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
 
     connect(zjuConnectProcess, &QProcess::finished, this, [&]()
     {
+        stopRequested = false;
+        QString timeString = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+        emit outputRead(timeString + " 退出原因：" "进程已结束");
         emit finished();
     });
 
@@ -384,29 +391,37 @@ void ZjuConnectController::start(
     QString programToStart = program;
     QStringList finalArgs = credentialList + args;
 
-#if defined(Q_OS_LINUX)
+#if defined(Q_OS_UNIX)
+    QString sudoPassword;
+    bool useSudo = false;
     if (tunMode && !Utils::isRunningAsAdmin())
     {
-        QStringList elevatedArgs;
-        elevatedArgs << programToStart;
-        elevatedArgs << finalArgs;
-
-        const QString pkexecPath = QStandardPaths::findExecutable("pkexec");
-
-        if (!pkexecPath.isEmpty())
+        if (!Utils::promptForSudoPassword(sudoPassword, qobject_cast<QWidget *>(parent())))
         {
-            programToStart = pkexecPath;
-            finalArgs = elevatedArgs;
-            emit outputRead(timeString + " 使用 pkexec 提升权限启动核心");
+            emit outputRead(timeString + " 已取消 sudo 密码输入");
         }
         else
         {
-            emit outputRead(timeString + " 未找到 pkexec 无法提升权限启动核心");
+            QStringList sudoArgs;
+            sudoArgs << "-S";
+            sudoArgs << programToStart;
+            sudoArgs << finalArgs;
+            programToStart = "sudo";
+            finalArgs = sudoArgs;
+            useSudo = true;
+            emit outputRead(timeString + " 使用 sudo 提升权限启动核心");
         }
     }
 #endif
 
     zjuConnectProcess->start(programToStart, finalArgs);
+#if defined(Q_OS_UNIX)
+    if (useSudo)
+    {
+        zjuConnectProcess->write((sudoPassword + "\n").toUtf8());
+        zjuConnectProcess->closeWriteChannel();
+    }
+#endif
     zjuConnectProcess->waitForStarted();
     if (zjuConnectProcess->state() == QProcess::NotRunning)
     {
@@ -421,8 +436,15 @@ void ZjuConnectController::stop()
         return;
     }
 
-    zjuConnectProcess->kill();
-    zjuConnectProcess->waitForFinished();
+    if (!stopRequested)
+    {
+        stopRequested = true;
+        zjuConnectProcess->kill();
+    }
+    else
+    {
+        zjuConnectProcess->terminate();
+    }
 }
 
 ZjuConnectController::~ZjuConnectController()

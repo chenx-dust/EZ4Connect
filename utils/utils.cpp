@@ -1,4 +1,6 @@
 #include <QMessageBox>
+#include <QInputDialog>
+#include <QLineEdit>
 #include <QApplication>
 #include <QNetworkInterface>
 #include <QTextCodec>
@@ -201,6 +203,29 @@ bool Utils::isRunningAsAdmin()
 #endif
 }
 
+bool Utils::promptForSudoPassword(QString &password, QWidget *parent)
+{
+#if defined(Q_OS_UNIX)
+    bool ok = false;
+    QString text = QInputDialog::getText(parent,
+                                         "需要管理员权限",
+                                         "请输入 sudo 密码：",
+                                         QLineEdit::Password,
+                                         "",
+                                         &ok);
+    if (!ok)
+    {
+        return false;
+    }
+    password = text;
+    return true;
+#else
+    Q_UNUSED(password)
+    Q_UNUSED(parent)
+    return false;
+#endif
+}
+
 bool Utils::relaunchAsAdmin(const QStringList &extraArgs)
 {
     QString program = QCoreApplication::applicationFilePath();
@@ -242,34 +267,6 @@ bool Utils::relaunchAsAdmin(const QStringList &extraArgs)
     );
 
     return reinterpret_cast<INT_PTR>(res) > 32;
-#elif defined(Q_OS_MAC)
-    // Use AppleScript to prompt a GUI password dialog.
-    QStringList elevatedArgs;
-    elevatedArgs << program;
-    elevatedArgs << args;
-    QStringList quotedArgs;
-    for (const QString &arg : elevatedArgs)
-    {
-        if (arg.contains(' '))
-        {
-            quotedArgs << "\"" + arg + "\"";
-        }
-        else
-        {
-            quotedArgs << arg;
-        }
-    }
-    QString arguments = quotedArgs.join(" ");
-    QString escaped = arguments;
-    escaped.replace("\\", "\\\\");
-    escaped.replace("\"", "\\\"");
-    QStringList scriptArgs;
-    scriptArgs << "-e";
-    scriptArgs << "do shell script \"" + escaped + "\" with administrator privileges";
-
-    qDebug() << scriptArgs;
-
-    return QProcess::startDetached("osascript", scriptArgs);
 #else
     Q_UNUSED(program)
     Q_UNUSED(args)

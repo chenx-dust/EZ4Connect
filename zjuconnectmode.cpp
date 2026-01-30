@@ -161,7 +161,7 @@ void MainWindow::initZjuConnect()
                     QString authtype = settings->value("ZJUConnect/AuthType", "psw").toString();
 
                     #if !defined(Q_OS_LINUX)
-                    // Linux will elevate only the core process via pkexec in the controller.
+                    // Linux will elevate only the core process via sudo in the controller.
                     if (settings->value("ZJUConnect/TunMode").toBool() && !Utils::isRunningAsAdmin())
                     {
 
@@ -257,17 +257,7 @@ void MainWindow::initZjuConnect()
                 }
                 else
                 {
-                    isZjuConnectLinked = false;
-
                     zjuConnectController->stop();
-
-                    if (isSystemProxySet)
-                    {
-                        ui->pushButton2->click();
-                    }
-
-                    ui->pushButton1->setText("连接服务器");
-                    ui->pushButton2->hide();
                 }
             });
 
