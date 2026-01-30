@@ -160,7 +160,7 @@ void MainWindow::initZjuConnect()
                     QString protocol = settings->value("ZJUConnect/Protocol", "easyconnect").toString();
                     QString authtype = settings->value("ZJUConnect/AuthType", "psw").toString();
 
-                    #if !defined(Q_OS_LINUX)
+                    #if !defined(Q_OS_UNIX)
                     // Linux will elevate only the core process via sudo in the controller.
                     if (settings->value("ZJUConnect/TunMode").toBool() && !Utils::isRunningAsAdmin())
                     {

@@ -42,7 +42,6 @@ namespace Utils
 
     bool isRunningAsAdmin();
 
-    // Windows only.
     bool relaunchAsAdmin(const QStringList &extraArgs = {});
 
     bool promptForSudoPassword(QString &password, QWidget *parent = nullptr);
