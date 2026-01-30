@@ -381,7 +381,32 @@ void ZjuConnectController::start(
         args.append(certPassword);
     }
 
-    zjuConnectProcess->start(program, credentialList + args);
+    QString programToStart = program;
+    QStringList finalArgs = credentialList + args;
+
+#if defined(Q_OS_LINUX)
+    if (tunMode && !Utils::isRunningAsAdmin())
+    {
+        QStringList elevatedArgs;
+        elevatedArgs << programToStart;
+        elevatedArgs << finalArgs;
+
+        const QString pkexecPath = QStandardPaths::findExecutable("pkexec");
+
+        if (!pkexecPath.isEmpty())
+        {
+            programToStart = pkexecPath;
+            finalArgs = elevatedArgs;
+            emit outputRead(timeString + " 使用 pkexec 提升权限启动核心");
+        }
+        else
+        {
+            emit outputRead(timeString + " 未找到 pkexec 无法提升权限启动核心");
+        }
+    }
+#endif
+
+    zjuConnectProcess->start(programToStart, finalArgs);
     zjuConnectProcess->waitForStarted();
     if (zjuConnectProcess->state() == QProcess::NotRunning)
     {

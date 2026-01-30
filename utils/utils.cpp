@@ -270,18 +270,6 @@ bool Utils::relaunchAsAdmin(const QStringList &extraArgs)
     qDebug() << scriptArgs;
 
     return QProcess::startDetached("osascript", scriptArgs);
-#elif defined(Q_OS_UNIX)
-    QStringList elevatedArgs;
-    elevatedArgs << program;
-    elevatedArgs << args;
-
-    // Prefer pkexec if available; fall back to sudo.
-    if (QProcess::startDetached("pkexec", elevatedArgs))
-    {
-        return true;
-    }
-
-    return QProcess::startDetached("sudo", elevatedArgs);
 #else
     Q_UNUSED(program)
     Q_UNUSED(args)

@@ -16,7 +16,12 @@ namespace Utils {
         {
             program_filename = "zju-connect";
         }
-        return QCoreApplication::applicationDirPath() + "/" + program_filename;
+        QString path = QCoreApplication::applicationDirPath() + "/" + program_filename;
+        if (!QFileInfo::exists(path)) {
+            return program_filename; // 可能在 PATH 中
+        } else {
+            return path;
+        }
     }
 
     QString checkCoreVersion(QObject* parent)
