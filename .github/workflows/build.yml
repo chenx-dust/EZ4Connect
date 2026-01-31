@@ -200,8 +200,8 @@ jobs:
             ${{ env.ARCHIVE_NAME }}.dmg dmg-build
 
       - name: Upload artifact (dmg)
-        uses: actions/upload-artifact@v4
         if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARCHIVE_NAME }}
           path: ${{ env.ARCHIVE_NAME }}.dmg
@@ -209,14 +209,14 @@ jobs:
       - name: Package zip file
         if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
         run: |
-          zip -r ${{ env.ARCHIVE_NAME }}.zip ${{ env.TARGET_NAME }}.app
+          tar -cvf ${{ env.ARCHIVE_NAME }}.tar ${{ env.TARGET_NAME }}.app
 
-      - name: Upload artifact (zip)
+      - name: Upload artifact (tar)
         uses: actions/upload-artifact@v4
         if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
         with:
           name: ${{ env.ARCHIVE_NAME }}
-          path: ${{ env.ARCHIVE_NAME }}.zip
+          path: ${{ env.ARCHIVE_NAME }}.tar
 
   build-macos-arm64:
     runs-on: macos-14
@@ -286,14 +286,14 @@ jobs:
       - name: Package zip file
         if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
         run: |
-          zip -r ${{ env.ARCHIVE_NAME }}.zip ${{ env.TARGET_NAME }}.app
+          tar -cvf ${{ env.ARCHIVE_NAME }}.tar ${{ env.TARGET_NAME }}.app
 
-      - name: Upload artifact (zip)
+      - name: Upload artifact (tar)
         uses: actions/upload-artifact@v4
         if: github.event_name != 'release' && github.event_name != 'workflow_dispatch'
         with:
           name: ${{ env.ARCHIVE_NAME }}
-          path: ${{ env.ARCHIVE_NAME }}.zip
+          path: ${{ env.ARCHIVE_NAME }}.tar
 
   build-linux-x64:
     runs-on: ubuntu-22.04
