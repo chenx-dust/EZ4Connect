@@ -456,11 +456,11 @@ void ZjuConnectController::stop()
     if (!stopRequested)
     {
         stopRequested = true;
-        zjuConnectProcess->kill();
+        zjuConnectProcess->terminate();
     }
     else
     {
-        zjuConnectProcess->terminate();
+        zjuConnectProcess->kill();
     }
 }
 
