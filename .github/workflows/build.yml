@@ -67,7 +67,7 @@ jobs:
           cd "${{ env.DISPLAY_NAME }}"
           cp ../build/Release/${{ env.TARGET_NAME }}.exe .
           windeployqt.exe ${{ env.TARGET_NAME }}.exe
-          curl -LO https://github.com/chenx-dust/zju-connect/releases/latest/download/zju-connect-windows-amd64.zip
+          curl -LO https://github.com/Mythologyli/zju-connect/releases/download/nightly/zju-connect-windows-amd64.zip
           tar -xf zju-connect-windows-amd64.zip
           rm zju-connect-windows-amd64.zip
           cp ../libs/wintun/bin/amd64/wintun.dll .
@@ -126,7 +126,7 @@ jobs:
           cd "${{ env.DISPLAY_NAME }}"
           cp ../build/Release/${{ env.TARGET_NAME }}.exe .
           windeployqt.exe ${{ env.TARGET_NAME }}.exe
-          curl -LO https://github.com/chenx-dust/zju-connect/releases/latest/download/zju-connect-windows-arm64.zip
+          curl -LO https://github.com/Mythologyli/zju-connect/releases/download/nightly/zju-connect-windows-arm64.zip
           tar -xf zju-connect-windows-arm64.zip
           rm zju-connect-windows-arm64.zip
           cp ../libs/wintun/bin/arm64/wintun.dll .
@@ -179,7 +179,7 @@ jobs:
       - name: Download and copy files
         run: |
           cp -R build/${{ env.TARGET_NAME }}.app .
-          curl -LO https://github.com/chenx-dust/zju-connect/releases/latest/download/zju-connect-darwin-amd64.zip
+          curl -LO https://github.com/Mythologyli/zju-connect/releases/download/nightly/zju-connect-darwin-amd64.zip
           tar -xf zju-connect-darwin-amd64.zip
           rm zju-connect-darwin-amd64.zip
           cp zju-connect ${{ env.TARGET_NAME }}.app/Contents/MacOS/
@@ -256,7 +256,7 @@ jobs:
       - name: Download and copy files
         run: |
           cp -R build/${{ env.TARGET_NAME }}.app .
-          curl -LO https://github.com/chenx-dust/zju-connect/releases/latest/download/zju-connect-darwin-arm64.zip
+          curl -LO https://github.com/Mythologyli/zju-connect/releases/download/nightly/zju-connect-darwin-arm64.zip
           tar -xf zju-connect-darwin-arm64.zip
           rm zju-connect-darwin-arm64.zip
           cp zju-connect ${{ env.TARGET_NAME }}.app/Contents/MacOS/
@@ -342,7 +342,7 @@ jobs:
           mkdir -p AppDir/usr/bin AppDir/usr/lib AppDir/usr/share/applications AppDir/usr/share/icons/hicolor/scalable/apps
 
           cp build/${{ env.TARGET_NAME }} AppDir/usr/bin/
-          wget -O zju-connect-linux-amd64.zip https://github.com/chenx-dust/zju-connect/releases/latest/download/zju-connect-linux-amd64.zip
+          wget -O zju-connect-linux-amd64.zip https://github.com/Mythologyli/zju-connect/releases/download/nightly/zju-connect-linux-amd64.zip
           unzip zju-connect-linux-amd64.zip
           cp zju-connect AppDir/usr/bin/
           cp resource/icon.png AppDir/usr/share/icons/hicolor/scalable/apps/${{ env.TARGET_NAME }}.png
@@ -417,7 +417,7 @@ jobs:
           mkdir -p AppDir/usr/bin AppDir/usr/lib AppDir/usr/share/applications AppDir/usr/share/icons/hicolor/scalable/apps
 
           cp build/${{ env.TARGET_NAME }} AppDir/usr/bin/
-          wget -O zju-connect-linux-arm64.zip https://github.com/chenx-dust/zju-connect/releases/latest/download/zju-connect-linux-arm64.zip
+          wget -O zju-connect-linux-arm64.zip https://github.com/Mythologyli/zju-connect/releases/download/nightly/zju-connect-linux-arm64.zip
           unzip zju-connect-linux-arm64.zip
           cp zju-connect AppDir/usr/bin/
           cp resource/icon.png AppDir/usr/share/icons/hicolor/scalable/apps/${{ env.TARGET_NAME }}.png
