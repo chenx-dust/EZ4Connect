@@ -62,4 +62,6 @@ Categories=Network;Security;
 EOF
 
 # Build AppImage
+export EXTRA_QT_PLUGINS="waylandcompositor"
+export EXTRA_PLATFORM_PLUGINS="libqwayland.so"
 ./linuxdeploy --appdir AppDir --output appimage --plugin qt
