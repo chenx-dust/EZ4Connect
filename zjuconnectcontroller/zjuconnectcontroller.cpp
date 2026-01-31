@@ -456,6 +456,8 @@ void ZjuConnectController::stop()
     if (!stopRequested)
     {
         stopRequested = true;
+        zjuConnectProcess->terminate();
+        zjuConnectProcess->waitForFinished(1000);
         zjuConnectProcess->kill();
     }
     else
