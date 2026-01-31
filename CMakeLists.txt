@@ -78,10 +78,23 @@ elseif(APPLE)
     set_target_properties(${PROJECT_NAME}
         PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/resource/Info.plist")
 
-    install(
-        TARGETS ${PROJECT_NAME}
-        BUNDLE DESTINATION .
+    # macdeployqt has a bug that it doesn't copy the Qt translations to the bundle
+    # so we need to copy them manually
+
+    # Get the path to the qmake executable
+    get_target_property(QT_QMAKE_EXECUTABLE Qt6::qmake IMPORTED_LOCATION)
+
+    # Query qmake for the location of the installed Qt translations
+    execute_process(
+        COMMAND ${QT_QMAKE_EXECUTABLE} -query QT_INSTALL_TRANSLATIONS
+        OUTPUT_VARIABLE QT_TRANSLATIONS
     )
+
+    string(STRIP "${QT_TRANSLATIONS}" QT_TRANSLATIONS)
+
+    message(STATUS "Found Qt translations in: ${QT_TRANSLATIONS}")
+
+    file(COPY ${QT_TRANSLATIONS} DESTINATION ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.app/Contents)
 else()
     add_executable(${PROJECT_NAME}
         ${SOURCE_FILES}
