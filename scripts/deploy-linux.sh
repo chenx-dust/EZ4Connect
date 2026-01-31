@@ -14,6 +14,9 @@ else
     APPIMAGE_ARCH="aarch64"
 fi
 
+# Install dependencies
+sudo apt install -y libxcb-cursor0 fuse
+
 # Download linuxdeploy tools if not present
 if [ ! -f linuxdeploy ]; then
     wget -O linuxdeploy "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-$APPIMAGE_ARCH.AppImage"
@@ -30,6 +33,9 @@ mkdir -p AppDir/usr/bin AppDir/usr/lib AppDir/usr/share/applications AppDir/usr/
 
 # Copy executable
 cp "$BUILD_DIR/$TARGET_NAME" AppDir/usr/bin/
+
+# Copy libnss3 libraries
+cp -R "/usr/lib/$APPIMAGE_ARCH-linux-gnu/nss/" AppDir/usr/lib/
 
 # Download and extract zju-connect
 ZIJU_ARCH="${ARCH}"

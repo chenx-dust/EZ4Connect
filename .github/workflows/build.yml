@@ -300,7 +300,6 @@ jobs:
 
       - name: Download and copy files
         run: |
-          sudo apt install -y libxcb-cursor0 fuse
           ./scripts/deploy-linux.sh "${{ env.TARGET_NAME }}" "${{ env.DISPLAY_NAME }}" "build" "x86_64"
           mv *.AppImage ${{ env.ARCHIVE_NAME }}.AppImage
 
@@ -352,7 +351,6 @@ jobs:
 
       - name: Download and copy files
         run: |
-          sudo apt install -y libxcb-cursor0 fuse
           ./scripts/deploy-linux.sh "${{ env.TARGET_NAME }}" "${{ env.DISPLAY_NAME }}" "build" "arm64"
           mv *.AppImage ${{ env.ARCHIVE_NAME }}.AppImage
 
