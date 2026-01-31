@@ -17,18 +17,23 @@ int main(int argc, char *argv[])
     QApplication::setApplicationVersion(PROJ_VER);
     QLocale::setDefault(QLocale(QLocale::Chinese, QLocale::SimplifiedChineseScript, QLocale::China));
 
-#ifdef Q_OS_WINDOWS
+#if defined(Q_OS_WINDOWS)
     QApplication::setFont(QFont("Microsoft YaHei UI", QApplication::font().pointSize()));
 #endif
 
+#if defined(Q_OS_WINDOWS)
+    QString translateModule = "qt";
+#else
+    QString translateModule = "qtbase";
+#endif
     QTranslator qtTranslator;
     QString translationsPath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
-    qDebug() << "Translations path: " << translationsPath;
+    qDebug() << "Translations path:" << translationsPath << "module:" << translateModule;
     if (qtTranslator.load(QLocale(QLocale::Chinese, QLocale::SimplifiedChineseScript, QLocale::China),
-                          QString("qt"), QString("_"), translationsPath))
+                          translateModule, QString("_"), translationsPath))
         app.installTranslator(&qtTranslator);
     else
-        qDebug() << "Failed to load qt_zh_CN.qm";
+        qDebug() << "Failed to load transaction file for" << translateModule;
 
     MainWindow mainWindow;
 
