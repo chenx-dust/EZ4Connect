@@ -58,6 +58,7 @@ public:
         bool tunMode,
         bool addRoute,
         bool dnsHijack,
+        bool fakeIp,
         bool tcpTunnelMode,
         const QString& tcpPortForwarding,
         const QString& udpPortForwarding,

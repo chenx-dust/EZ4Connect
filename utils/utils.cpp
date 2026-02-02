@@ -521,6 +521,7 @@ void Utils::resetDefaultSettings(QSettings& settings)
     settings.setValue("ZJUConnect/TUNMode", false);
     settings.setValue("ZJUConnect/AddRoute", false);
     settings.setValue("ZJUConnect/DNSHijack", false);
+    settings.setValue("ZJUConnect/FakeIP", false);
     settings.setValue("ZJUConnect/TCPTunnelMode", false);
 
 

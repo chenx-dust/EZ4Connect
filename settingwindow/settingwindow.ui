@@ -632,7 +632,17 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0" colspan="3">
+         <item row="4" column="0">
+          <widget class="QCheckBox" name="fakeIPCheckBox">
+           <property name="toolTip">
+            <string>aTrust 协议 TUN 模式下有效</string>
+           </property>
+           <property name="text">
+            <string>Fake IP（TUN）</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1" colspan="2">
           <widget class="QCheckBox" name="tcpTunnelModeCheckBox">
            <property name="text">
             <string>禁用 L3 隧道（aTrust 兼容模式）</string>
@@ -978,6 +988,22 @@
     <hint type="destinationlabel">
      <x>405</x>
      <y>379</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tunCheckBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>fakeIPCheckBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>108</x>
+     <y>379</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>405</x>
+     <y>410</y>
     </hint>
    </hints>
   </connection>

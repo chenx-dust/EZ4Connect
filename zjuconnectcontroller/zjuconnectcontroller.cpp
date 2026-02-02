@@ -159,6 +159,7 @@ void ZjuConnectController::start(
     bool tunMode,
     bool addRoute,
     bool dnsHijack,
+    bool fakeIp,
     bool tcpTunnelMode,
     const QString& tcpPortForwarding,
     const QString& udpPortForwarding,
@@ -291,6 +292,10 @@ void ZjuConnectController::start(
         if (dnsHijack)
         {
             args.append("-dns-hijack");
+            if (fakeIp)
+            {
+                args.append("-fake-ip");
+            }
         }
 
         if (addRoute)

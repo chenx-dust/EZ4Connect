@@ -237,6 +237,7 @@ void SettingWindow::loadSettings()
     ui->tunCheckBox->setChecked(settings->value("ZJUConnect/TUNMode").toBool());
     ui->routeCheckBox->setChecked(settings->value("ZJUConnect/AddRoute").toBool());
     ui->dnsHijackCheckBox->setChecked(settings->value("ZJUConnect/DNSHijack").toBool());
+    ui->fakeIPCheckBox->setChecked(settings->value("ZJUConnect/FakeIP").toBool());
     ui->tcpTunnelModeCheckBox->setChecked(settings->value("ZJUConnect/TCPTunnelMode").toBool());
 
     tcpPortForwarding = settings->value("ZJUConnect/TCPPortForwarding").toString();
@@ -247,6 +248,7 @@ void SettingWindow::loadSettings()
 
     ui->routeCheckBox->setEnabled(ui->tunCheckBox->isChecked());
     ui->dnsHijackCheckBox->setEnabled(ui->tunCheckBox->isChecked());
+    ui->fakeIPCheckBox->setEnabled(ui->tunCheckBox->isChecked());
 
 	ui->dnsLineEdit->setEnabled(!ui->dnsAutoCheckBox->isChecked());
 }
@@ -305,6 +307,7 @@ void SettingWindow::applySettings()
     settings->setValue("ZJUConnect/TUNMode", ui->tunCheckBox->isChecked());
     settings->setValue("ZJUConnect/AddRoute", ui->routeCheckBox->isChecked());
     settings->setValue("ZJUConnect/DNSHijack", ui->dnsHijackCheckBox->isChecked());
+    settings->setValue("ZJUConnect/FakeIP", ui->fakeIPCheckBox->isChecked());
     settings->setValue("ZJUConnect/TCPTunnelMode", ui->tcpTunnelModeCheckBox->isChecked());
 
 
