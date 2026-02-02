@@ -37,10 +37,10 @@
 <img src="docs/proxy_setting.png" width="400px">
 </div>
 
-3. 在 “文件”-“设置”-“登录” 页面中，选择对应的服务器类型，输入账号（一般为学号）和密码，保存登录信息；
+3. 在 “文件”-“设置”-“认证” 页面中，选择对应的服务器类型，配置认证信息；
 
 > ![!NOTE]
-> aTrust 服务器支持多种登录方式，如需选择请点击“获取认证方式”按钮。
+> aTrust 服务器支持多种认证方式，如需选择请点击“获取认证方式”按钮。
 
 <div align="center">
 <img src="docs/auth_method.png" width="400px">

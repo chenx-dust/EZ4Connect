@@ -223,7 +223,7 @@
      </widget>
      <widget class="QWidget" name="loginTab">
       <attribute name="title">
-       <string>登录</string>
+       <string>认证</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
        <item row="2" column="0">

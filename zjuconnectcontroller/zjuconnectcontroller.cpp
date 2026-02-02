@@ -74,6 +74,10 @@ ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
             {
                 emit error(ZJU_ERROR::INTERACTIVE_ERROR);
             }
+            else if (output.contains("auth type/login domain combination not found"))
+            {
+                emit error(ZJU_ERROR::AUTH_NOT_AVAILABLE);
+            }
             else if (output.contains("client setup error"))
             {
                 emit error(ZJU_ERROR::CLIENT_FAILED);

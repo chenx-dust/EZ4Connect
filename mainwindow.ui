@@ -207,14 +207,6 @@ Line 2
     <enum>QAction::MenuRole::PreferencesRole</enum>
    </property>
   </action>
-  <action name="webLoginAction">
-   <property name="text">
-    <string>SSO 登录</string>
-   </property>
-   <property name="toolTip">
-    <string>打开校园网 SSO 登录窗口</string>
-   </property>
-  </action>
   <action name="disableProxyAction">
    <property name="text">
     <string>禁用系统代理</string>
