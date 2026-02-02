@@ -493,8 +493,8 @@ void Utils::resetDefaultSettings(QSettings& settings)
     settings.setValue("ZJUConnect/DNSAuto", true);
     settings.setValue("ZJUConnect/SecondaryDNS", "");
     settings.setValue("ZJUConnect/DNSTTL", 3600);
-    settings.setValue("ZJUConnect/Socks5Port", 11080);
-    settings.setValue("ZJUConnect/HttpPort", 11081);
+    settings.setValue("ZJUConnect/SOCKS5Port", 11080);
+    settings.setValue("ZJUConnect/HTTPPort", 11081);
     settings.setValue("ZJUConnect/ShadowsocksURL", "");
     settings.setValue("ZJUConnect/DialDirectProxy", "");
     settings.setValue("ZJUConnect/UpdateBestNodesInterval", 300);
@@ -518,14 +518,14 @@ void Utils::resetDefaultSettings(QSettings& settings)
     settings.setValue("ZJUConnect/ZJUDefault", false);
     settings.setValue("ZJUConnect/Debug", false);
 
-    settings.setValue("ZJUConnect/TunMode", false);
+    settings.setValue("ZJUConnect/TUNMode", false);
     settings.setValue("ZJUConnect/AddRoute", false);
     settings.setValue("ZJUConnect/DNSHijack", false);
-    settings.setValue("ZJUConnect/TcpTunnelMode", false);
+    settings.setValue("ZJUConnect/TCPTunnelMode", false);
 
 
-    settings.setValue("ZJUConnect/TcpPortForwarding", "");
-    settings.setValue("ZJUConnect/UdpPortForwarding", "");
+    settings.setValue("ZJUConnect/TCPPortForwarding", "");
+    settings.setValue("ZJUConnect/UDPPortForwarding", "");
     settings.setValue("ZJUConnect/CustomDNS", "");
     settings.setValue("ZJUConnect/CustomProxyDomain", "");
     settings.setValue("ZJUConnect/ExtraArguments", "");

@@ -165,7 +165,7 @@ void MainWindow::initZjuConnect()
 
                     #if !defined(Q_OS_UNIX)
                     // Linux will elevate only the core process via sudo in the controller.
-                    if (settings->value("ZJUConnect/TunMode").toBool() && !Utils::isRunningAsAdmin())
+                    if (settings->value("ZJUConnect/TUNMode").toBool() && !Utils::isRunningAsAdmin())
                     {
 
                         if (Utils::relaunchAsAdmin())
@@ -208,8 +208,8 @@ void MainWindow::initZjuConnect()
                             settings->value("ZJUConnect/DNSAuto").toBool(),
                             settings->value("ZJUConnect/SecondaryDNS").toString(),
                             settings->value("ZJUConnect/DNSTTL").toInt(),
-                            bind_prefix + QString::number(settings->value("ZJUConnect/Socks5Port").toInt()),
-                            bind_prefix + QString::number(settings->value("ZJUConnect/HttpPort").toInt()),
+                            bind_prefix + QString::number(settings->value("ZJUConnect/SOCKS5Port").toInt()),
+                            bind_prefix + QString::number(settings->value("ZJUConnect/HTTPPort").toInt()),
                             settings->value("ZJUConnect/ShadowsocksURL").toString(),
                             settings->value("ZJUConnect/DialDirectProxy").toString(),
                             settings->value("ZJUConnect/UpdateBestNodesInterval", 300).toInt(),
@@ -221,12 +221,12 @@ void MainWindow::initZjuConnect()
                             settings->value("ZJUConnect/DisableZJUDNS").toBool(),
                             !settings->value("ZJUConnect/ZJUDefault").toBool(),
                             settings->value("ZJUConnect/Debug").toBool(),
-                            settings->value("ZJUConnect/TunMode").toBool(),
+                            settings->value("ZJUConnect/TUNMode").toBool(),
                             settings->value("ZJUConnect/AddRoute").toBool(),
                             settings->value("ZJUConnect/DNSHijack").toBool(),
-                            settings->value("ZJUConnect/TcpTunnelMode").toBool(),
-                            settings->value("ZJUConnect/TcpPortForwarding").toString(),
-                            settings->value("ZJUConnect/UdpPortForwarding").toString(),
+                            settings->value("ZJUConnect/TCPTunnelMode").toBool(),
+                            settings->value("ZJUConnect/TCPPortForwarding").toString(),
+                            settings->value("ZJUConnect/UDPPortForwarding").toString(),
                             settings->value("ZJUConnect/CustomDNS", "").toString(),
                             settings->value("ZJUConnect/CustomProxyDomain", "").toString(),
                             settings->value("Credential/CertFile", "").toString(),
@@ -284,8 +284,8 @@ void MainWindow::initZjuConnect()
                         }
                     }
 
-                    Utils::setSystemProxy(settings->value("ZJUConnect/HttpPort").toInt(),
-                                          settings->value("ZJUConnect/Socks5Port").toInt(),
+                    Utils::setSystemProxy(settings->value("ZJUConnect/HTTPPort").toInt(),
+                                          settings->value("ZJUConnect/SOCKS5Port").toInt(),
                                           settings->value("Common/SystemProxyBypass").toString());
                     ui->pushButton2->setText("清除系统代理");
                     isSystemProxySet = true;

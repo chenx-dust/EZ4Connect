@@ -199,8 +199,8 @@ void SettingWindow::loadSettings()
     ui->dnsAutoCheckBox->setChecked(settings->value("ZJUConnect/DNSAuto").toBool());
     ui->secondaryDnsLineEdit->setText(settings->value("ZJUConnect/SecondaryDNS").toString());
     ui->dnsTTLSpinBox->setValue(settings->value("ZJUConnect/DNSTTL").toInt());
-    ui->socks5PortSpinBox->setValue(settings->value("ZJUConnect/Socks5Port").toInt());
-    ui->httpPortSpinBox->setValue(settings->value("ZJUConnect/HttpPort").toInt());
+    ui->socks5PortSpinBox->setValue(settings->value("ZJUConnect/SOCKS5Port").toInt());
+    ui->httpPortSpinBox->setValue(settings->value("ZJUConnect/HTTPPort").toInt());
     ui->shadowsocksUrlLineEdit->setText(settings->value("ZJUConnect/ShadowsocksURL").toString());
     ui->dialDirectProxyLineEdit->setText(settings->value("ZJUConnect/DialDirectProxy").toString());
     ui->updateBestNodesIntervalSpinBox->setValue(
@@ -234,13 +234,13 @@ void SettingWindow::loadSettings()
     ui->disableDNSCheckBox->setChecked(settings->value("ZJUConnect/DisableZJUDNS").toBool());
     ui->debugCheckBox->setChecked(settings->value("ZJUConnect/Debug").toBool());
 
-    ui->tunCheckBox->setChecked(settings->value("ZJUConnect/TunMode").toBool());
+    ui->tunCheckBox->setChecked(settings->value("ZJUConnect/TUNMode").toBool());
     ui->routeCheckBox->setChecked(settings->value("ZJUConnect/AddRoute").toBool());
     ui->dnsHijackCheckBox->setChecked(settings->value("ZJUConnect/DNSHijack").toBool());
-    ui->tcpTunnelModeCheckBox->setChecked(settings->value("ZJUConnect/TcpTunnelMode").toBool());
+    ui->tcpTunnelModeCheckBox->setChecked(settings->value("ZJUConnect/TCPTunnelMode").toBool());
 
-    tcpPortForwarding = settings->value("ZJUConnect/TcpPortForwarding").toString();
-    udpPortForwarding = settings->value("ZJUConnect/UdpPortForwarding").toString();
+    tcpPortForwarding = settings->value("ZJUConnect/TCPPortForwarding").toString();
+    udpPortForwarding = settings->value("ZJUConnect/UDPPortForwarding").toString();
 	customDNS = settings->value("ZJUConnect/CustomDNS").toString();
 	customProxyDomain = settings->value("ZJUConnect/CustomProxyDomain").toString();
     extraArguments = settings->value("ZJUConnect/ExtraArguments").toString();
@@ -277,8 +277,8 @@ void SettingWindow::applySettings()
     settings->setValue("ZJUConnect/DNSAuto", ui->dnsAutoCheckBox->isChecked());
     settings->setValue("ZJUConnect/SecondaryDNS", ui->secondaryDnsLineEdit->text());
     settings->setValue("ZJUConnect/DNSTTL", ui->dnsTTLSpinBox->value());
-    settings->setValue("ZJUConnect/Socks5Port", ui->socks5PortSpinBox->value());
-    settings->setValue("ZJUConnect/HttpPort", ui->httpPortSpinBox->value());
+    settings->setValue("ZJUConnect/SOCKS5Port", ui->socks5PortSpinBox->value());
+    settings->setValue("ZJUConnect/HTTPPort", ui->httpPortSpinBox->value());
     settings->setValue("ZJUConnect/ShadowsocksURL", ui->shadowsocksUrlLineEdit->text());
     settings->setValue("ZJUConnect/DialDirectProxy", ui->dialDirectProxyLineEdit->text());
     settings->setValue("ZJUConnect/UpdateBestNodesInterval", ui->updateBestNodesIntervalSpinBox->value());
@@ -302,14 +302,14 @@ void SettingWindow::applySettings()
     settings->setValue("ZJUConnect/ZJUDefault", ui->zjuDefaultCheckBox->isChecked());
     settings->setValue("ZJUConnect/Debug", ui->debugCheckBox->isChecked());
 
-    settings->setValue("ZJUConnect/TunMode", ui->tunCheckBox->isChecked());
+    settings->setValue("ZJUConnect/TUNMode", ui->tunCheckBox->isChecked());
     settings->setValue("ZJUConnect/AddRoute", ui->routeCheckBox->isChecked());
     settings->setValue("ZJUConnect/DNSHijack", ui->dnsHijackCheckBox->isChecked());
-    settings->setValue("ZJUConnect/TcpTunnelMode", ui->tcpTunnelModeCheckBox->isChecked());
+    settings->setValue("ZJUConnect/TCPTunnelMode", ui->tcpTunnelModeCheckBox->isChecked());
 
 
-    settings->setValue("ZJUConnect/TcpPortForwarding", tcpPortForwarding);
-    settings->setValue("ZJUConnect/UdpPortForwarding", udpPortForwarding);
+    settings->setValue("ZJUConnect/TCPPortForwarding", tcpPortForwarding);
+    settings->setValue("ZJUConnect/UDPPortForwarding", udpPortForwarding);
     settings->setValue("ZJUConnect/CustomDNS", customDNS);
     settings->setValue("ZJUConnect/CustomProxyDomain", customProxyDomain);
     settings->setValue("ZJUConnect/ExtraArguments", extraArguments);
