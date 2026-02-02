@@ -31,13 +31,22 @@
 <img src="docs/main.png" width="600px">
 </div>
 
-2. 在 “功能”-“设置”-“通用” 页面中输入账号（一般为学号）和密码，点击 OK 保存登录信息；
+2. 在 “文件”-“设置”-“核心” 页面中设置好服务器地址；
 
 <div align="center">
-<img src="docs/config.png" width="400px">
+<img src="docs/proxy_setting.png" width="400px">
 </div>
 
-3. 在主界面中点击“连接服务器”。如果只需进行校园网页浏览，则选择“设置系统代理”后即可使用。
+3. 在 “文件”-“设置”-“登录” 页面中，选择对应的服务器类型，输入账号（一般为学号）和密码，保存登录信息；
+
+> ![!NOTE]
+> aTrust 服务器支持多种登录方式，如需选择请点击“获取认证方式”按钮。
+
+<div align="center">
+<img src="docs/auth_method.png" width="400px">
+</div>
+
+4. 在主界面中点击“连接服务器”。如果只需进行校园网页浏览，则选择“设置系统代理”后即可使用。
 
 如果需要配合 Clash / Mihomo 进行高级的分流操作，可以参见： [高级使用方式](docs/ADVANCED_USAGE.md)
 
