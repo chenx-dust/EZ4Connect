@@ -12,11 +12,11 @@ on:
       nightly:
         type: boolean
         default: true
-        description: "Whether to build nightly version"
+        description: "Nightly Build"
       version:
         type: string
-        default: v0.0.0
-        description: "Version to build (e.g. v0.0.0)"
+        default: ''
+        description: "Version (e.g. v0.0.0)"
 
 env:
   QT_VERSION: '6.10.*'
