@@ -159,7 +159,7 @@ jobs:
           ./scripts/deploy-macos.sh "${{ env.TARGET_NAME }}" "build" "amd64"
 
       - name: Import macOS signing certificate
-        if: (github.event_name == 'release' || github.event_name == 'workflow_dispatch') && secrets.MACOS_CERT_IDENTITY != '' && secrets.MACOS_CERT_P12 != '' && secrets.MACOS_CERT_PASSWORD != ''
+        if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
         env:
           MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
           MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
@@ -176,7 +176,7 @@ jobs:
           security list-keychains -d user -s "$KEYCHAIN_PATH"
 
       - name: Sign app bundle
-        if: (github.event_name == 'release' || github.event_name == 'workflow_dispatch') && secrets.MACOS_CERT_IDENTITY != '' && secrets.MACOS_CERT_P12 != '' && secrets.MACOS_CERT_PASSWORD != ''
+        if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
         env:
           CODESIGN_IDENTITY: ${{ secrets.MACOS_CERT_IDENTITY }}
         run: |
@@ -197,7 +197,7 @@ jobs:
             ${{ env.ARCHIVE_NAME }}.dmg dmg-build
 
       - name: Notarize and staple dmg
-        if: (github.event_name == 'release' || github.event_name == 'workflow_dispatch') && secrets.MACOS_CERT_IDENTITY != '' && secrets.MACOS_CERT_P12 != '' && secrets.MACOS_CERT_PASSWORD != '' && secrets.APPLE_ID != '' && secrets.APPLE_APP_SPECIFIC_PASSWORD != '' && secrets.APPLE_TEAM_ID != ''
+        if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
@@ -264,7 +264,7 @@ jobs:
           ./scripts/deploy-macos.sh "${{ env.TARGET_NAME }}" "build" "arm64"
 
       - name: Import macOS signing certificate
-        if: (github.event_name == 'release' || github.event_name == 'workflow_dispatch') && secrets.MACOS_CERT_IDENTITY != '' && secrets.MACOS_CERT_P12 != '' && secrets.MACOS_CERT_PASSWORD != ''
+        if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
         env:
           MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
           MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
@@ -281,7 +281,7 @@ jobs:
           security list-keychains -d user -s "$KEYCHAIN_PATH"
 
       - name: Sign app bundle
-        if: (github.event_name == 'release' || github.event_name == 'workflow_dispatch') && secrets.MACOS_CERT_IDENTITY != '' && secrets.MACOS_CERT_P12 != '' && secrets.MACOS_CERT_PASSWORD != ''
+        if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
         env:
           CODESIGN_IDENTITY: ${{ secrets.MACOS_CERT_IDENTITY }}
         run: |
@@ -302,7 +302,7 @@ jobs:
             ${{ env.ARCHIVE_NAME }}.dmg dmg-build
 
       - name: Notarize and staple dmg
-        if: (github.event_name == 'release' || github.event_name == 'workflow_dispatch') && secrets.MACOS_CERT_IDENTITY != '' && secrets.MACOS_CERT_P12 != '' && secrets.MACOS_CERT_PASSWORD != '' && secrets.APPLE_ID != '' && secrets.APPLE_APP_SPECIFIC_PASSWORD != '' && secrets.APPLE_TEAM_ID != ''
+        if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
