@@ -189,7 +189,7 @@ jobs:
           mkdir dmg-build
           create-dmg \
             --volname "${{ env.DISPLAY_NAME }}" \
-            --volicon ./resource/app-icon.icns \
+            --volicon ./resource/icon.icns \
             --window-size 430 240 \
             --app-drop-link 200 0 \
             --add-file "${{ env.DISPLAY_NAME }}.app" "./${{ env.TARGET_NAME }}.app" 0 0 \
@@ -294,7 +294,7 @@ jobs:
           mkdir dmg-build
           create-dmg \
             --volname "${{ env.DISPLAY_NAME }}" \
-            --volicon ./resource/app-icon.icns \
+            --volicon ./resource/icon.icns \
             --window-size 430 240 \
             --app-drop-link 200 0 \
             --add-file "${{ env.DISPLAY_NAME }}.app" "./${{ env.TARGET_NAME }}.app" 0 0 \
