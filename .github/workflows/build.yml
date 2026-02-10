@@ -158,6 +158,30 @@ jobs:
         run: |
           ./scripts/deploy-macos.sh "${{ env.TARGET_NAME }}" "build" "amd64"
 
+      - name: Import macOS signing certificate
+        if: (github.event_name == 'release' || github.event_name == 'workflow_dispatch') && secrets.MACOS_CERT_IDENTITY != '' && secrets.MACOS_CERT_P12 != '' && secrets.MACOS_CERT_PASSWORD != ''
+        env:
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-keychain
+        run: |
+          CERTIFICATE_PATH="$RUNNER_TEMP/macos_signing_certificate.p12"
+          KEYCHAIN_PATH="$RUNNER_TEMP/macos-signing.keychain-db"
+          echo "$MACOS_CERT_P12" | base64 --decode > "$CERTIFICATE_PATH" || echo "$MACOS_CERT_P12" | base64 -D > "$CERTIFICATE_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERTIFICATE_PATH" -P "$MACOS_CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH"
+
+      - name: Sign app bundle
+        if: (github.event_name == 'release' || github.event_name == 'workflow_dispatch') && secrets.MACOS_CERT_IDENTITY != '' && secrets.MACOS_CERT_P12 != '' && secrets.MACOS_CERT_PASSWORD != ''
+        env:
+          CODESIGN_IDENTITY: ${{ secrets.MACOS_CERT_IDENTITY }}
+        run: |
+          ./scripts/macos-sign-app.sh "./${{ env.TARGET_NAME }}.app"
+
       - name: Package dmg file
         if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
         run: |
@@ -171,6 +195,15 @@ jobs:
             --add-file 修复脚本.command ./resource/macos-fix.sh 100 200 \
             --filesystem APFS \
             ${{ env.ARCHIVE_NAME }}.dmg dmg-build
+
+      - name: Notarize and staple dmg
+        if: (github.event_name == 'release' || github.event_name == 'workflow_dispatch') && secrets.MACOS_CERT_IDENTITY != '' && secrets.MACOS_CERT_P12 != '' && secrets.MACOS_CERT_PASSWORD != '' && secrets.APPLE_ID != '' && secrets.APPLE_APP_SPECIFIC_PASSWORD != '' && secrets.APPLE_TEAM_ID != ''
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          ./scripts/macos-notarize-dmg.sh "${{ env.ARCHIVE_NAME }}.dmg"
 
       - name: Upload artifact (dmg)
         if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
@@ -230,6 +263,30 @@ jobs:
         run: |
           ./scripts/deploy-macos.sh "${{ env.TARGET_NAME }}" "build" "arm64"
 
+      - name: Import macOS signing certificate
+        if: (github.event_name == 'release' || github.event_name == 'workflow_dispatch') && secrets.MACOS_CERT_IDENTITY != '' && secrets.MACOS_CERT_P12 != '' && secrets.MACOS_CERT_PASSWORD != ''
+        env:
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}-keychain
+        run: |
+          CERTIFICATE_PATH="$RUNNER_TEMP/macos_signing_certificate.p12"
+          KEYCHAIN_PATH="$RUNNER_TEMP/macos-signing.keychain-db"
+          echo "$MACOS_CERT_P12" | base64 --decode > "$CERTIFICATE_PATH" || echo "$MACOS_CERT_P12" | base64 -D > "$CERTIFICATE_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERTIFICATE_PATH" -P "$MACOS_CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH"
+
+      - name: Sign app bundle
+        if: (github.event_name == 'release' || github.event_name == 'workflow_dispatch') && secrets.MACOS_CERT_IDENTITY != '' && secrets.MACOS_CERT_P12 != '' && secrets.MACOS_CERT_PASSWORD != ''
+        env:
+          CODESIGN_IDENTITY: ${{ secrets.MACOS_CERT_IDENTITY }}
+        run: |
+          ./scripts/macos-sign-app.sh "./${{ env.TARGET_NAME }}.app"
+
       - name: Package dmg file
         if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
         run: |
@@ -243,6 +300,15 @@ jobs:
             --add-file 修复脚本.command ./resource/macos-fix.sh 100 200 \
             --filesystem APFS \
             ${{ env.ARCHIVE_NAME }}.dmg dmg-build
+
+      - name: Notarize and staple dmg
+        if: (github.event_name == 'release' || github.event_name == 'workflow_dispatch') && secrets.MACOS_CERT_IDENTITY != '' && secrets.MACOS_CERT_P12 != '' && secrets.MACOS_CERT_PASSWORD != '' && secrets.APPLE_ID != '' && secrets.APPLE_APP_SPECIFIC_PASSWORD != '' && secrets.APPLE_TEAM_ID != ''
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          ./scripts/macos-notarize-dmg.sh "${{ env.ARCHIVE_NAME }}.dmg"
 
       - name: Upload artifact (dmg)
         if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
