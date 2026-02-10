@@ -23,6 +23,7 @@ macdeployqt "$TARGET_NAME.app"
 # macdeployqt has a bug that it doesn't copy the Qt translations to the bundle
 # so we need to copy them manually
 QT_TRANSLATIONS=$(qmake -query QT_INSTALL_TRANSLATIONS)
+mkdir -p "$TARGET_NAME.app/Contents/translations"
 if [ -d "$QT_TRANSLATIONS" ]; then
-    cp -R "$QT_TRANSLATIONS"/qtbase_*.qm "$TARGET_NAME.app/Contents/"
+    cp -R "$QT_TRANSLATIONS"/qtbase_*.qm "$TARGET_NAME.app/Contents/translations"
 fi
