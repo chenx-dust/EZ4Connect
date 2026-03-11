@@ -8,14 +8,16 @@
 #include "settingwindow.h"
 #include "ui_settingwindow.h"
 #include "utils/utils.h"
+#include "utils/profilemanager.h"
 
-SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings) :
+SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings, const QString &profileId) :
     QDialog(parent),
     ui(new Ui::SettingWindow)
 {
     ui->setupUi(this);
 
     this->settings = inputSettings;
+    this->profileId = profileId;
 
     setWindowModality(Qt::WindowModal);
     setAttribute(Qt::WA_DeleteOnClose);
@@ -46,7 +48,7 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings) :
             !Utils::credentialCheck(ui->usernameLineEdit->text(), ui->passwordLineEdit->text()))
             return;
         if (isAuthSettingChanged())
-            Utils::clearClientData();
+            Utils::clearClientData(this->profileId);
         applySettings();
         accept();
     });
@@ -56,7 +58,7 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings) :
             !Utils::credentialCheck(ui->usernameLineEdit->text(), ui->passwordLineEdit->text()))
             return;
         if (isAuthSettingChanged())
-            Utils::clearClientData();
+            Utils::clearClientData(this->profileId);
         applySettings();
         loadSettings();
     });
@@ -184,7 +186,8 @@ void SettingWindow::loadSettings()
         QByteArray::fromBase64(settings->value("Credential/CertPassword").toString().toUtf8())
     );
 
-    ui->autoStartCheckBox->setChecked(settings->value("Common/AutoStart").toBool());
+    ProfileManager profileManager;
+    ui->autoStartCheckBox->setChecked(profileManager.autoStartEnabled());
     ui->connectAfterStartCheckBox->setChecked(settings->value("Common/ConnectAfterStart").toBool());
     ui->checkUpdateAfterStartCheckBox->setChecked(settings->value("Common/CheckUpdateAfterStart").toBool());
     ui->autoSetProxyCheckBox->setChecked(settings->value("Common/AutoSetProxy").toBool());
@@ -255,8 +258,12 @@ void SettingWindow::loadSettings()
 
 void SettingWindow::applySettings()
 {
-    if (settings->value("Common/AutoStart", false).toBool() != ui->autoStartCheckBox->isChecked())
+    ProfileManager profileManager;
+    bool oldAutoStart = profileManager.autoStartEnabled();
+    bool newAutoStart = ui->autoStartCheckBox->isChecked();
+    if (oldAutoStart != newAutoStart)
         Utils::setAutoStart(ui->autoStartCheckBox->isChecked());
+    profileManager.setAutoStartEnabled(newAutoStart);
 
     settings->setValue("Credential/Username", ui->usernameLineEdit->text());
     settings->setValue("Credential/Password", QString(ui->passwordLineEdit->text().toUtf8().toBase64()));
@@ -264,7 +271,6 @@ void SettingWindow::applySettings()
     settings->setValue("Credential/CertFile", ui->certFileLineEdit->text());
     settings->setValue("Credential/CertPassword", QString(ui->certPasswordLineEdit->text().toUtf8().toBase64()));
 
-    settings->setValue("Common/AutoStart", ui->autoStartCheckBox->isChecked());
     settings->setValue("Common/ConnectAfterStart", ui->connectAfterStartCheckBox->isChecked());
     settings->setValue("Common/CheckUpdateAfterStart", ui->checkUpdateAfterStartCheckBox->isChecked());
     settings->setValue("Common/AutoSetProxy", ui->autoSetProxyCheckBox->isChecked());

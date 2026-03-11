@@ -68,7 +68,8 @@ public:
         const QString& customProxyDomain,
         const QString& certFile,
         const QString& certPassword,
-        const QString& extraArguments
+        const QString& extraArguments,
+        const QString& profileId
     );
 
     void stop();

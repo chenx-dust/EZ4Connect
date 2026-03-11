@@ -1,6 +1,7 @@
 #include "zjuconnectcontroller.h"
 #include "mainwindow.h"
 #include "utils/utils.h"
+#include <qcontainerfwd.h>
 
 ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
 {
@@ -175,7 +176,8 @@ void ZjuConnectController::start(
     const QString& customProxyDomain,
     const QString& certFile,
     const QString& certPassword,
-    const QString& extraArguments
+    const QString& extraArguments,
+    const QString& profileId
 )
 {
     QStringList args;
@@ -206,7 +208,7 @@ void ZjuConnectController::start(
 
         // 存放 Client Data
         args.append("-client-data-file");
-        args.append(Utils::getClientDataPath());
+        args.append(Utils::getClientDataPath(profileId));
     }
 
     if (!phone.isEmpty())

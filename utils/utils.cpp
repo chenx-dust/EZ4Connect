@@ -19,6 +19,32 @@
 #endif
 
 #include "utils.h"
+#include "profilemanager.h"
+
+namespace
+{
+QString profileIdFromConfigPath(const QString &configPath)
+{
+    QFileInfo info(configPath);
+    if (!info.exists() || info.suffix() != "ini")
+    {
+        return "custom";
+    }
+
+    if (info.fileName() == "state.ini")
+    {
+        return "custom";
+    }
+
+    QDir parentDir = info.dir();
+    if (parentDir.dirName() != "profiles")
+    {
+        return "custom";
+    }
+
+    return info.baseName();
+}
+}
 
 QString Utils::consoleOutputToQString(const QByteArray &byteArray)
 {
@@ -220,22 +246,19 @@ bool Utils::promptForSudoPassword(QString &password, QWidget *parent)
     return true;
 }
 
-bool Utils::relaunchAsAdmin(const QStringList &extraArgs)
+bool Utils::relaunchAsAdmin()
 {
     QString program = QCoreApplication::applicationFilePath();
-    QStringList args;
-
-    if (Utils::getArgValue(args, "--config-path").isEmpty())
+    QStringList args = QCoreApplication::arguments();
+    if (!args.isEmpty())
     {
-        args << "--config-path" << Utils::getConfigPath();
+        args.removeFirst();
     }
-    if (Utils::getArgValue(args, "--client-data-path").isEmpty())
-    {
-        args << "--client-data-path" << Utils::getClientDataPath();
-    }
-    args << "--connect";
 
-    args.append(extraArgs);
+    if (!args.contains("--connect"))
+    {
+        args << "--connect";
+    }
 
 #if defined(Q_OS_WIN)
     QStringList quotedArgs;
@@ -408,33 +431,27 @@ bool Utils::credentialCheck(const QString &username, const QString &password)
     return true;
 }
 
-void Utils::clearClientData()
+void Utils::clearClientData(const QString &profileId)
 {
-    QFile::remove(getClientDataPath());
+    QFile::remove(getClientDataPath(profileId));
 }
 
-QString Utils::getClientDataPath()
+QString Utils::getClientDataPath(const QString &profileId)
 {
-    QString overridePath = Utils::getArgValue(QCoreApplication::arguments(), "--client-data-path");
-    if (!overridePath.isEmpty())
-    {
-        QFileInfo info(overridePath);
-        QDir parentDir = info.dir();
-        if (!parentDir.exists())
-        {
-            parentDir.mkpath(".");
-        }
-        qDebug() << "Using override client data path:" << overridePath;
-        return overridePath;
-    }
-
     QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     QDir dir(defaultPath);
     if (!dir.exists())
     {
         dir.mkpath(".");
     }
-    return dir.filePath("client-data.json");
+
+    QDir profileDir(dir.filePath("profiles/" + profileId));
+    if (!profileDir.exists())
+    {
+        profileDir.mkpath(".");
+    }
+
+    return profileDir.filePath("client-data.json");
 }
 
 QString Utils::getLogFilePath()
@@ -448,37 +465,12 @@ QString Utils::getLogFilePath()
     return logDir.filePath("zjuconnect.log");
 }
 
-QString Utils::getConfigPath()
-{
-    QString overridePath = Utils::getArgValue(QCoreApplication::arguments(), "--config-path");
-    if (!overridePath.isEmpty())
-    {
-        QFileInfo info(overridePath);
-        QDir parentDir = info.dir();
-        if (!parentDir.exists())
-        {
-            parentDir.mkpath(".");
-        }
-        qDebug() << "Using override config path:" << overridePath;
-        return overridePath;
-    }
-
-    QString configPath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
-    QDir configDir(configPath);
-    if (!configDir.exists())
-    {
-        configDir.mkpath(".");
-    }
-    return configDir.filePath("config.ini");
-}
-
 void Utils::resetDefaultSettings(QSettings& settings)
 {
     settings.setValue("Credential/Username", "");
     settings.setValue("Credential/Password", "");
     settings.setValue("Credential/TOTPSecret", "");
 
-    settings.setValue("Common/AutoStart", false);
     settings.setValue("Common/ConnectAfterStart", false);
     settings.setValue("Common/CheckUpdateAfterStart", false);
     settings.setValue("Common/AutoSetProxy", false);

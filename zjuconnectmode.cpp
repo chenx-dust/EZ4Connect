@@ -169,11 +169,10 @@ void MainWindow::initZjuConnect()
                     QString protocol = settings->value("ZJUConnect/Protocol", "easyconnect").toString();
                     QString authtype = settings->value("ZJUConnect/AuthType", "psw").toString();
 
-                    #if !defined(Q_OS_UNIX)
-                    // Linux will elevate only the core process via sudo in the controller.
+#if defined(Q_OS_WIN)
+                    // Linux/macOS will elevate only the core process via sudo in the controller.
                     if (settings->value("ZJUConnect/TUNMode").toBool() && !Utils::isRunningAsAdmin())
                     {
-
                         if (Utils::relaunchAsAdmin())
                         {
                             QApplication::quit();
@@ -239,7 +238,8 @@ void MainWindow::initZjuConnect()
                             settings->value("ZJUConnect/CustomProxyDomain", "").toString(),
                             settings->value("Credential/CertFile", "").toString(),
                             QByteArray::fromBase64(settings->value("Credential/CertPassword", "").toString().toUtf8()),
-                            settings->value("ZJUConnect/ExtraArguments", "").toString());
+                            settings->value("ZJUConnect/ExtraArguments", "").toString(),
+                            currentProfileId);
                 	};
 
                     if (((protocol == "atrust" && authtype == "psw") ||

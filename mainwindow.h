@@ -7,12 +7,14 @@
 #include <QProcess>
 #include <QNetworkReply>
 #include <QSettings>
+#include <QPointer>
 
 #include "loginwindow/loginwindow.h"
 #include "ssologinwebview/ssologinwebview.h"
 #include "zjuconnectcontroller/zjuconnectcontroller.h"
 #include "settingwindow/settingwindow.h"
 #include "graphcaptchawindow/graphcaptchawindow.h"
+#include "utils/profilemanager.h"
 
 namespace Ui
 {
@@ -60,6 +62,18 @@ private:
 
     void updateVersionInfo();
 
+    void setupProfileMenu();
+
+    void refreshProfileMenu();
+
+    bool switchProfile(const QString &profileId);
+
+    void createProfile();
+
+    void renameCurrentProfile();
+
+    void deleteCurrentProfile();
+
     struct {
         QString ui_version, ui_latest;
         QString core_version, core_latest;
@@ -70,17 +84,22 @@ private:
     QMenu *trayMenu;
     QAction *trayShowAction;
     QAction *trayCloseAction;
+    QAction *newProfileAction;
+    QAction *renameProfileAction;
+    QAction *deleteProfileAction;
     ZjuConnectController *zjuConnectController;
     QNetworkAccessManager *checkUpdateNAM;
     QNetworkAccessManager *checkCoreUpdateNAM;
     QSettings *settings;
+    ProfileManager *profileManager;
+    QString currentProfileId;
 
     QObject *diagnosisContext;
 
-    SettingWindow *settingWindow;
-    LoginWindow *loginWindow;
-    SsoLoginWebView *ssoLoginWebView;
-    GraphCaptchaWindow *graphCaptchaWindow;
+    QPointer<SettingWindow> settingWindow;
+    QPointer<LoginWindow> loginWindow;
+    QPointer<SsoLoginWebView> ssoLoginWebView;
+    QPointer<GraphCaptchaWindow> graphCaptchaWindow;
 
     bool isFirstTimeSetMode;
 

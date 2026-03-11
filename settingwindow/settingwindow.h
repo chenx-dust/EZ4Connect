@@ -17,7 +17,7 @@ class SettingWindow : public QDialog
 Q_OBJECT
 
 public:
-    explicit SettingWindow(QWidget *parent = nullptr, QSettings *settings = nullptr);
+    explicit SettingWindow(QWidget *parent = nullptr, QSettings *settings = nullptr, const QString &profileId = "");
 
     ~SettingWindow() override;
 
@@ -29,6 +29,7 @@ private:
     Ui::SettingWindow *ui;
 
     QSettings *settings;
+    QString profileId;
 
     ExtraSettingWindow *extraSettingWindow;
     AuthInfoWindow *authInfoWindow;

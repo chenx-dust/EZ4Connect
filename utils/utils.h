@@ -14,7 +14,7 @@ namespace Utils
 
     const inline QString APP_NAME("EZ4Connect");
 
-    constexpr inline int CONFIG_VERSION = 6;
+    constexpr inline int CONFIG_VERSION = 7;
 
     QString consoleOutputToQString(const QByteArray &byteArray);
 
@@ -42,17 +42,15 @@ namespace Utils
 
     bool isRunningAsAdmin();
 
-    bool relaunchAsAdmin(const QStringList &extraArgs = {});
+    bool relaunchAsAdmin();
 
     bool promptForSudoPassword(QString &password, QWidget *parent = nullptr);
 
-    void clearClientData();
+    void clearClientData(const QString &profileId);
     
-    QString getClientDataPath();
+    QString getClientDataPath(const QString &profileId);
 
     QString getLogFilePath();
-
-    QString getConfigPath();
 
     QString getArgValue(const QStringList &args, const QString &key);
 }

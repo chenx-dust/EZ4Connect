@@ -44,6 +44,7 @@ set(SOURCE_FILES
     graphcaptchawindow/graphcaptchawindow.cpp
     graphcaptchawindow/captchacanvas.cpp
     utils/utils.cpp
+    utils/profilemanager.cpp
     utils/proxysettings.cpp
     utils/coreversion.cpp
     resource.qrc
