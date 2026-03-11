@@ -500,6 +500,7 @@ void Utils::resetDefaultSettings(QSettings& settings)
 
     settings.setValue("ZJUConnect/MultiLine", false);
     settings.setValue("ZJUConnect/KeepAlive", false);
+    settings.setValue("ZJUConnect/KeepAliveURL", "");
     settings.setValue("ZJUConnect/OutsideAccess", false);
 
     settings.setValue("ZJUConnect/SkipDomainResource", false);

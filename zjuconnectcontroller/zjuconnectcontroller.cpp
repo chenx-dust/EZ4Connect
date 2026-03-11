@@ -159,6 +159,7 @@ void ZjuConnectController::start(
     int updateBestNodesInterval,
     bool disableMultiLine,
     bool disableKeepAlive,
+    const QString& keepAliveUrl,
     bool skipDomainResource,
     bool disableServerConfig,
     bool proxyAll,
@@ -268,6 +269,12 @@ void ZjuConnectController::start(
     if (disableKeepAlive)
     {
         args.append("-disable-keep-alive");
+    }
+
+    if (!keepAliveUrl.isEmpty())
+    {
+        args.append("-keep-alive-url");
+        args.append(keepAliveUrl);
     }
 
     if (disableZjuConfig)

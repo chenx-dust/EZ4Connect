@@ -227,6 +227,7 @@ void SettingWindow::loadSettings()
 
     ui->multiLineCheckBox->setChecked(settings->value("ZJUConnect/MultiLine").toBool());
     ui->keepAliveCheckBox->setChecked(settings->value("ZJUConnect/KeepAlive").toBool());
+    ui->keepAliveUrlLineEdit->setText(settings->value("ZJUConnect/KeepAliveURL", "").toString());
     ui->outsideAccessCheckBox->setChecked(settings->value("ZJUConnect/OutsideAccess").toBool());
 
     ui->skipDomainResourceCheckBox->setChecked(settings->value("ZJUConnect/SkipDomainResource").toBool());
@@ -300,6 +301,7 @@ void SettingWindow::applySettings()
 
     settings->setValue("ZJUConnect/MultiLine", ui->multiLineCheckBox->isChecked());
     settings->setValue("ZJUConnect/KeepAlive", ui->keepAliveCheckBox->isChecked());
+    settings->setValue("ZJUConnect/KeepAliveURL", ui->keepAliveUrlLineEdit->text().trimmed());
     settings->setValue("ZJUConnect/OutsideAccess", ui->outsideAccessCheckBox->isChecked());
 
     settings->setValue("ZJUConnect/SkipDomainResource", ui->skipDomainResourceCheckBox->isChecked());

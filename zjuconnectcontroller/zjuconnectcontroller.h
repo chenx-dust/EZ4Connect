@@ -51,6 +51,7 @@ public:
         int updateBestNodesInterval,
         bool disableMultiLine,
         bool disableKeepAlive,
+        const QString& keepAliveUrl,
         bool skipDomainResource,
         bool disableServerConfig,
         bool proxyAll,
