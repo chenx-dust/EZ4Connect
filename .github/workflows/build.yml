@@ -19,7 +19,7 @@ on:
         description: "Version (e.g. v0.0.0)"
 
 env:
-  QT_VERSION: '6.10.*'
+  QT_VERSION: '6.10.2'
   TARGET_NAME: 'EZ4Connect'
   DISPLAY_NAME: 'EZ4Connect'
 
