@@ -43,7 +43,7 @@ if [ "$ARCH" = "x86_64" ]; then
     ZIJU_ARCH="amd64"
 fi
 
-wget -O "zju-connect-linux-$ZIJU_ARCH.zip" "https://github.com/Mythologyli/zju-connect/releases/download/nightly/zju-connect-linux-$ZIJU_ARCH.zip"
+wget -O "zju-connect-linux-$ZIJU_ARCH.zip" "https://github.com/Mythologyli/zju-connect/releases/latest/download/zju-connect-linux-$ZIJU_ARCH.zip"
 unzip -o "zju-connect-linux-$ZIJU_ARCH.zip"
 cp zju-connect AppDir/usr/bin/
 rm "zju-connect-linux-$ZIJU_ARCH.zip"

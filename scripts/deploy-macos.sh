@@ -10,7 +10,7 @@ ARCH="${3:-amd64}"
 cp -R "$BUILD_DIR/$TARGET_NAME.app" .
 
 # Download and extract zju-connect
-curl -LO "https://github.com/Mythologyli/zju-connect/releases/download/nightly/zju-connect-darwin-$ARCH.zip"
+curl -LO "https://github.com/Mythologyli/zju-connect/releases/latest/download/zju-connect-darwin-$ARCH.zip"
 unzip -o "zju-connect-darwin-$ARCH.zip"
 rm "zju-connect-darwin-$ARCH.zip"
 

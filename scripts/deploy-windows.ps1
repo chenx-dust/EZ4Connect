@@ -21,7 +21,7 @@ Copy-Item -Path "../$BuildDir/Release/$TargetName.exe" -Destination .
 & windeployqt.exe "$TargetName.exe"
 
 # Download and extract zju-connect
-$ZjuUrl = "https://github.com/Mythologyli/zju-connect/releases/download/nightly/zju-connect-windows-$Architecture.zip"
+$ZjuUrl = "https://github.com/Mythologyli/zju-connect/releases/latest/download/zju-connect-windows-$Architecture.zip"
 $ZjuZipPath = "zju-connect-windows-$Architecture.zip"
 Invoke-WebRequest -Uri $ZjuUrl -OutFile $ZjuZipPath
 Expand-Archive -Path $ZjuZipPath -DestinationPath . -Force
