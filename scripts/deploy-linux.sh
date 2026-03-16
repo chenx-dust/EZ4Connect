@@ -17,7 +17,7 @@ else
 fi
 
 # Install dependencies
-sudo apt install -y libxcb-cursor0 fuse
+sudo apt-get install -y libxcb-cursor0 fuse
 
 # Download linuxdeploy tools if not present
 if [ ! -f linuxdeploy ]; then
@@ -36,8 +36,11 @@ mkdir -p AppDir/usr/bin AppDir/usr/lib AppDir/usr/share/applications AppDir/usr/
 # Copy executable
 cp "$BUILD_DIR/$TARGET_NAME" AppDir/usr/bin/
 
-# Copy libnss3 libraries
-cp -R "/usr/lib/$APPIMAGE_ARCH-linux-gnu/nss/" AppDir/usr/lib/
+# Copy libnss3 libraries (for QtWebEngine in Ubuntu 22.04)
+# Ubuntu 24.04 move them to /usr/lib/aarch64-linux-gnu or /usr/lib/x86_64-linux-gnu, so no need to special case them
+if [ -d "/usr/lib/$APPIMAGE_ARCH-linux-gnu/nss" ]; then
+    cp -R "/usr/lib/$APPIMAGE_ARCH-linux-gnu/nss/" AppDir/usr/lib/
+fi
 
 # Download and extract zju-connect
 ZJU_ARCH="${ARCH}"
