@@ -2,6 +2,8 @@
 # Linux deployment script
 # Usage: ./scripts/deploy-linux.sh "EZ4Connect" "EZ4Connect" "build" "x86_64"
 
+set -euo pipefail
+
 TARGET_NAME="${1:-EZ4Connect}"
 DISPLAY_NAME="${2:-EZ4Connect}"
 BUILD_DIR="${3:-build}"
@@ -38,15 +40,15 @@ cp "$BUILD_DIR/$TARGET_NAME" AppDir/usr/bin/
 cp -R "/usr/lib/$APPIMAGE_ARCH-linux-gnu/nss/" AppDir/usr/lib/
 
 # Download and extract zju-connect
-ZIJU_ARCH="${ARCH}"
+ZJU_ARCH="${ARCH}"
 if [ "$ARCH" = "x86_64" ]; then
-    ZIJU_ARCH="amd64"
+    ZJU_ARCH="amd64"
 fi
 
-wget -O "zju-connect-linux-$ZIJU_ARCH.zip" "https://github.com/Mythologyli/zju-connect/releases/latest/download/zju-connect-linux-$ZIJU_ARCH.zip"
-unzip -o "zju-connect-linux-$ZIJU_ARCH.zip"
+wget -O "zju-connect-linux-$ZJU_ARCH.zip" "https://github.com/Mythologyli/zju-connect/releases/latest/download/zju-connect-linux-$ZJU_ARCH.zip"
+unzip -o "zju-connect-linux-$ZJU_ARCH.zip"
 cp zju-connect AppDir/usr/bin/
-rm "zju-connect-linux-$ZIJU_ARCH.zip"
+rm "zju-connect-linux-$ZJU_ARCH.zip"
 
 # Copy icon
 cp resource/icon.png "AppDir/usr/share/icons/hicolor/scalable/apps/$TARGET_NAME.png"

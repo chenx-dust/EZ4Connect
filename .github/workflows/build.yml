@@ -156,7 +156,7 @@ jobs:
 
       - name: Download and copy files
         run: |
-          ./scripts/deploy-macos.sh "${{ env.TARGET_NAME }}" "build" "amd64"
+          ./scripts/deploy-macos.sh "${{ env.TARGET_NAME }}" "build" "x86_64"
 
       - name: Import macOS signing certificate
         if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
