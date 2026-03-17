@@ -229,23 +229,6 @@ bool Utils::isRunningAsAdmin()
 #endif
 }
 
-bool Utils::promptForSudoPassword(QString &password, QWidget *parent)
-{
-    bool ok = false;
-    QString text = QInputDialog::getText(parent,
-                                         "需要 Root 权限",
-                                         "请输入 sudo 密码：",
-                                         QLineEdit::Password,
-                                         "",
-                                         &ok);
-    if (!ok)
-    {
-        return false;
-    }
-    password = text;
-    return true;
-}
-
 bool Utils::relaunchAsAdmin()
 {
     QString program = QCoreApplication::applicationFilePath();

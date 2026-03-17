@@ -35,7 +35,11 @@ ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
                 logStream->flush();
             }
 
-            if (output.contains("Graph check code saved to "))
+            if (output.contains("SUDO_ASK_PASS"))
+            {
+                emit askSudoPass();
+            }
+            else if (output.contains("Graph check code saved to "))
             {
                 emit graphCaptcha(graphFile);
             }
@@ -432,34 +436,18 @@ void ZjuConnectController::start(
 
 #if defined(Q_OS_UNIX)
     QString sudoPassword;
-    bool useSudo = false;
     if (tunMode && !Utils::isRunningAsAdmin())
     {
-        if (!Utils::promptForSudoPassword(sudoPassword, qobject_cast<QWidget *>(parent())))
-        {
-            emit outputRead(timeString + " 已取消 sudo 密码输入");
-        }
-        else
-        {
-            QStringList sudoArgs;
-            sudoArgs << "-S";
-            sudoArgs << programToStart;
-            sudoArgs << finalArgs;
-            programToStart = "sudo";
-            finalArgs = sudoArgs;
-            useSudo = true;
-            emit outputRead(timeString + " 使用 sudo 提升权限启动核心");
-        }
+        QStringList sudoArgs;
+        sudoArgs << "-p" << "SUDO_ASK_PASS";
+        sudoArgs << "-S";
+        sudoArgs << programToStart << finalArgs;
+        programToStart = "sudo";
+        finalArgs = sudoArgs;
+        enteredSudoPassword = false;
     }
 #endif
-
     zjuConnectProcess->start(programToStart, finalArgs);
-#if defined(Q_OS_UNIX)
-    if (useSudo)
-    {
-        zjuConnectProcess->write((sudoPassword + "\n").toUtf8());
-    }
-#endif
     zjuConnectProcess->waitForStarted();
     if (zjuConnectProcess->state() == QProcess::NotRunning)
     {

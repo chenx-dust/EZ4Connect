@@ -4,6 +4,7 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "sudowindow/sudowindow.h"
 #include "loginwindow/loginwindow.h"
 #include "utils/utils.h"
 #include "zjuconnectcontroller/zjuconnectcontroller.h"
@@ -34,6 +35,45 @@ void MainWindow::initZjuConnect()
             {
                 zjuConnectError = err;
             }
+        });
+
+    connect(zjuConnectController, &ZjuConnectController::askSudoPass, this,
+        [&]()
+        {
+            if (zjuConnectController->savedSudoPassword)
+            {
+                if (zjuConnectController->enteredSudoPassword)
+                {
+                    addLog("sudo 密码可能有误，不使用记住的密码");
+                    zjuConnectController->savedSudoPassword = false;
+                    zjuConnectController->sudoPassword.clear();
+                }
+                else
+                {
+                    zjuConnectController->enteredSudoPassword = true;
+                    emit WriteToProcess(zjuConnectController->sudoPassword.toUtf8() + "\n");
+                    return;
+                }
+            }
+            sudoWindow = new SudoWindow(this);
+            connect(sudoWindow, &SudoWindow::sudo, this, [&](const QString &password, bool save)
+            {
+                if (password.isEmpty())
+                {
+                    zjuConnectController->stop();
+                }
+                else
+                {
+                    if (save)
+                    {
+                        zjuConnectController->savedSudoPassword = true;
+                        zjuConnectController->sudoPassword = password;
+                    }
+                    zjuConnectController->enteredSudoPassword = true;
+                    emit WriteToProcess(password.toUtf8() + "\n");
+                }
+            });
+            sudoWindow->show();
         });
 
     connect(zjuConnectController, &ZjuConnectController::graphCaptcha, this,

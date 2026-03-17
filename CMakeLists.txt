@@ -39,6 +39,7 @@ set(SOURCE_FILES
     extrasettingwindow/extrasettingwindow.cpp
     settingwindow/settingwindow.cpp
     loginwindow/loginwindow.cpp
+    sudowindow/sudowindow.cpp
     ssologinwebview/ssologinwebview.cpp
     authinfowindow/authinfowindow.cpp
     graphcaptchawindow/graphcaptchawindow.cpp

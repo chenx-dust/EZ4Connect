@@ -10,6 +10,7 @@
 #include <QPointer>
 
 #include "loginwindow/loginwindow.h"
+#include "sudowindow/sudowindow.h"
 #include "ssologinwebview/ssologinwebview.h"
 #include "zjuconnectcontroller/zjuconnectcontroller.h"
 #include "settingwindow/settingwindow.h"
@@ -98,6 +99,7 @@ private:
 
     QPointer<SettingWindow> settingWindow;
     QPointer<LoginWindow> loginWindow;
+    QPointer<SudoWindow> sudoWindow;
     QPointer<SsoLoginWebView> ssoLoginWebView;
     QPointer<GraphCaptchaWindow> graphCaptchaWindow;
 

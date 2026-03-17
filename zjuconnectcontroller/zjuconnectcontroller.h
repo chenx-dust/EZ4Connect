@@ -88,6 +88,8 @@ signals:
 
     void casAuth();
 
+    void askSudoPass();
+
     void finished();
 
     void write(const QByteArray &data);
@@ -102,6 +104,11 @@ private:
     QFile *logFile = nullptr;
     QTextStream *logStream = nullptr;
     bool stopRequested = false;
+
+public:
+    bool savedSudoPassword;
+    bool enteredSudoPassword;
+    QString sudoPassword;
 };
 
 #endif //ZJUCONNECTCONTROLLER_H

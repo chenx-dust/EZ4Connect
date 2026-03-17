@@ -44,8 +44,6 @@ namespace Utils
 
     bool relaunchAsAdmin();
 
-    bool promptForSudoPassword(QString &password, QWidget *parent = nullptr);
-
     void clearClientData(const QString &profileId);
     
     QString getClientDataPath(const QString &profileId);
