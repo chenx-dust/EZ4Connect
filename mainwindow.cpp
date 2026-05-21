@@ -350,6 +350,16 @@ void MainWindow::clearLog()
         "配置路径：" + settings->fileName() + "\n");
 }
 
+void MainWindow::resetZjuConnectUi()
+{
+    isZjuConnectLinked = false;
+    zjuConnectError = ZJU_ERROR::NONE;
+    ui->pushButton1->setText("连接服务器");
+    trayConnectAction->setText("连接服务器");
+    ui->pushButton2->setText("设置系统代理");
+    ui->pushButton2->hide();
+}
+
 void MainWindow::setupTrayIcon()
 {
     // 系统托盘
@@ -539,9 +549,10 @@ bool MainWindow::switchProfile(const QString &profileId)
     currentProfileId = profileId;
     profileManager->setActiveProfile(currentProfileId);
 
-    updateVersionInfo();
     upgradeSettings();
-    initZjuConnect();
+    updateVersionInfo();
+    resetZjuConnectUi();
+    clearLog();
     refreshProfileMenu();
 
     addLog("已切换到配置：" + currentProfileId);

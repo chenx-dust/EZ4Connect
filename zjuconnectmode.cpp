@@ -11,14 +11,15 @@
 
 void MainWindow::initZjuConnect()
 {
+    if (zjuConnectController != nullptr)
+    {
+        return;
+    }
+
     clearLog();
 
     zjuConnectController = new ZjuConnectController(this);
-
-    ui->pushButton1->setText("连接服务器");
-    trayConnectAction->setText("连接服务器");
-    ui->pushButton2->setText("设置系统代理");
-    ui->pushButton2->hide();
+    resetZjuConnectUi();
 
     // 连接服务器
     connect(zjuConnectController, &ZjuConnectController::outputRead, this,

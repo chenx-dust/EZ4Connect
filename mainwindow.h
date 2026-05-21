@@ -55,6 +55,8 @@ private:
 
     void clearLog();
 
+    void resetZjuConnectUi();
+
     void showNotification(
         const QString &title,
         const QString &content,
@@ -94,7 +96,7 @@ private:
     QAction *newProfileAction;
     QAction *renameProfileAction;
     QAction *deleteProfileAction;
-    ZjuConnectController *zjuConnectController;
+    ZjuConnectController *zjuConnectController = nullptr;
     QNetworkAccessManager *checkUpdateNAM;
     QNetworkAccessManager *checkCoreUpdateNAM;
     QSettings *settings;
