@@ -44,8 +44,7 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings, const QS
             });
 
     connect(ui->buttonBox->button(QDialogButtonBox::Ok), &QPushButton::clicked, [&]() {
-        if (!(ui->atrustRadioButton->isChecked() && ui->casRadioButton->isChecked()) && !ui->certFileLineEdit->text().isEmpty() &&
-            !Utils::credentialCheck(ui->usernameLineEdit->text(), ui->passwordLineEdit->text()))
+        if (shouldCheckCredential() && !Utils::credentialCheck(ui->usernameLineEdit->text(), ui->passwordLineEdit->text()))
             return;
         if (isAuthSettingChanged())
             Utils::clearClientData(this->profileId);
@@ -54,8 +53,7 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings, const QS
     });
 
     connect(ui->buttonBox->button(QDialogButtonBox::Apply), &QPushButton::clicked, [&]() {
-        if (!(ui->atrustRadioButton->isChecked() && ui->casRadioButton->isChecked()) && !ui->certFileLineEdit->text().isEmpty() &&
-            !Utils::credentialCheck(ui->usernameLineEdit->text(), ui->passwordLineEdit->text()))
+        if (shouldCheckCredential() && !Utils::credentialCheck(ui->usernameLineEdit->text(), ui->passwordLineEdit->text()))
             return;
         if (isAuthSettingChanged())
             Utils::clearClientData(this->profileId);
@@ -150,6 +148,11 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings, const QS
                         ui->casRadioButton->setChecked(true);
                         ui->loginUrlLineEdit->setText(loginUrl);
                     }
+                    else if (authType == "auth/httpsOauth2")
+                    {
+                        ui->oauth2RadioButton->setChecked(true);
+                        ui->loginUrlLineEdit->setText(loginUrl);
+                    }
                     else if (authType == "auth/smsCheckCode")
                     {
                         ui->smsCheckCodeRadioButton->setChecked(true);
@@ -168,6 +171,14 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings, const QS
 SettingWindow::~SettingWindow()
 {
     delete ui;
+}
+
+bool SettingWindow::shouldCheckCredential()
+{
+    if (ui->atrustRadioButton->isChecked())
+        return ui->pswRadioButton->isChecked();
+    else
+        return !ui->certFileLineEdit->text().isEmpty();
 }
 
 void SettingWindow::loadSettings()
@@ -220,9 +231,11 @@ void SettingWindow::loadSettings()
         ui->smsCheckCodeRadioButton->setChecked(true);
     else if (authType == "cas")
         ui->casRadioButton->setChecked(true);
+    else if (authType == "httpsOauth2")
+        ui->oauth2RadioButton->setChecked(true);
     else
         ui->pswRadioButton->setChecked(true);
-    ui->loginUrlLineEdit->setText(settings->value("ZJUConnect/CasLoginURL").toString());
+    ui->loginUrlLineEdit->setText(settings->value("ZJUConnect/LoginURL").toString());
     ui->countryCodeLineEdit->setText(settings->value("ZJUConnect/PhoneCountryCode").toString());
     ui->phoneNumberLineEdit->setText(settings->value("ZJUConnect/PhoneNumber").toString());
 
@@ -296,8 +309,17 @@ void SettingWindow::applySettings()
 
     settings->setValue("ZJUConnect/Protocol", ui->atrustRadioButton->isChecked() ? "atrust" : "easyconnect");
     settings->setValue("ZJUConnect/LoginDomain", ui->loginDomainLineEdit->text());
-    settings->setValue("ZJUConnect/AuthType", ui->casRadioButton->isChecked() ? "cas" : (ui->smsCheckCodeRadioButton->isChecked() ? "smsCheckCode" : "psw"));
-    settings->setValue("ZJUConnect/CasLoginURL", ui->loginUrlLineEdit->text());
+    QString authType;
+    if (ui->smsCheckCodeRadioButton->isChecked())
+        authType = "smsCheckCode";
+    else if (ui->casRadioButton->isChecked())
+        authType = "cas";
+    else if (ui->oauth2RadioButton->isChecked())
+        authType = "httpsOauth2";
+    else
+        authType = "psw";
+    settings->setValue("ZJUConnect/AuthType", authType);
+    settings->setValue("ZJUConnect/LoginURL", ui->loginUrlLineEdit->text());
     settings->setValue("ZJUConnect/PhoneCountryCode", ui->countryCodeLineEdit->text());
     settings->setValue("ZJUConnect/PhoneNumber", ui->phoneNumberLineEdit->text());
 
@@ -343,6 +365,8 @@ bool SettingWindow::isAuthSettingChanged()
     QString currentAuthType;
     if (ui->casRadioButton->isChecked())
         currentAuthType = "cas";
+    else if (ui->oauth2RadioButton->isChecked())
+        currentAuthType = "httpsOauth2";
     else if (ui->smsCheckCodeRadioButton->isChecked())
         currentAuthType = "smsCheckCode";
     else
@@ -350,8 +374,8 @@ bool SettingWindow::isAuthSettingChanged()
 
     return currentAuthType != settings->value("ZJUConnect/AuthType").toString() ||
            ui->loginDomainLineEdit->text() != settings->value("ZJUConnect/LoginDomain").toString() ||
-           (currentAuthType == "cas" &&
-            ui->loginUrlLineEdit->text() != settings->value("ZJUConnect/CasLoginURL").toString()) ||
+           ((currentAuthType == "cas" || currentAuthType == "httpsOauth2") &&
+            ui->loginUrlLineEdit->text() != settings->value("ZJUConnect/LoginURL").toString()) ||
            ui->serverAddressLineEdit->text() != settings->value("ZJUConnect/ServerAddress").toString() ||
            ui->serverPortSpinBox->value() != settings->value("ZJUConnect/ServerPort").toInt();
 }

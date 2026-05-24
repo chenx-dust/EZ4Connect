@@ -95,7 +95,7 @@ void MainWindow::initZjuConnect()
         emit WriteToProcess(smsCode.toLocal8Bit() + "\n");
     });
 
-    connect(zjuConnectController, &ZjuConnectController::casAuth, this, [&]() {
+    connect(zjuConnectController, &ZjuConnectController::ssoAuth, this, [&]() {
         ssoLoginWebView = new SsoLoginWebView(this);
         connect(ssoLoginWebView, &SsoLoginWebView::loginCompleted,
                 [=](const QString &url) { emit WriteToProcess(url.toLocal8Bit() + "\n"); });
@@ -106,7 +106,7 @@ void MainWindow::initZjuConnect()
         {
             serverHost += ":" + QString::number(serverPort);
         }
-        QString ssoUrl = settings->value("ZJUConnect/CasLoginURL").toString();
+        QString ssoUrl = settings->value("ZJUConnect/LoginURL").toString();
         if (ssoUrl.isEmpty())
             ssoUrl = "https://" + serverHost +
                      "/passport/v1/public/casLogin?sfDomain=" + settings->value("ZJUConnect/LoginDomain").toString();

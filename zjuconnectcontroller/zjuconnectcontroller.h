@@ -86,7 +86,7 @@ signals:
 
     void smsCode();
 
-    void casAuth();
+    void ssoAuth();
 
     void askSudoPass();
 

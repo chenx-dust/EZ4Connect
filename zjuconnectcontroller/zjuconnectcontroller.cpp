@@ -54,7 +54,7 @@ ZjuConnectController::ZjuConnectController(QWidget* parent) : QObject(parent)
             }
             else if (output.contains("Please enter the callback url:"))
             {
-                emit casAuth();
+                emit ssoAuth();
             }
             else if (output.contains("graph check code still required after second login attempt"))
             {

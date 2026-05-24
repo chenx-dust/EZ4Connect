@@ -25,6 +25,7 @@ private:
     void loadSettings();
     void applySettings();
     bool isAuthSettingChanged();
+    bool shouldCheckCredential();
 
     Ui::SettingWindow *ui;
 
