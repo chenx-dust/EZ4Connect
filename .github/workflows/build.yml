@@ -13,6 +13,10 @@ on:
         type: boolean
         default: true
         description: "Nightly Build"
+      zju_connect_nightly:
+        type: boolean
+        default: false
+        description: "Use nightly zju-connect"
       version:
         type: string
         default: ''
@@ -62,7 +66,7 @@ jobs:
       - name: Download and copy files
         shell: pwsh
         run: |
-          .\scripts\deploy-windows.ps1 -TargetName "${{ env.TARGET_NAME }}" -DisplayName "${{ env.DISPLAY_NAME }}" -BuildDir "build" -Architecture "amd64" -Nightly ${{ inputs.nightly || github.event_name != 'release' }}
+          .\scripts\deploy-windows.ps1 -TargetName "${{ env.TARGET_NAME }}" -DisplayName "${{ env.DISPLAY_NAME }}" -BuildDir "build" -Architecture "amd64" -Nightly ${{ github.event_name == 'workflow_dispatch' && inputs.zju_connect_nightly }}
           Compress-Archive -Path "${{ env.DISPLAY_NAME }}" -DestinationPath ${{ env.ARCHIVE_NAME }}.zip
 
       - name: Upload artifact
@@ -110,7 +114,7 @@ jobs:
       - name: Download and copy files
         shell: pwsh
         run: |
-          .\scripts\deploy-windows.ps1 -TargetName "${{ env.TARGET_NAME }}" -DisplayName "${{ env.DISPLAY_NAME }}" -BuildDir "build" -Architecture "arm64" -Nightly ${{ inputs.nightly || github.event_name != 'release' }}
+          .\scripts\deploy-windows.ps1 -TargetName "${{ env.TARGET_NAME }}" -DisplayName "${{ env.DISPLAY_NAME }}" -BuildDir "build" -Architecture "arm64" -Nightly ${{ github.event_name == 'workflow_dispatch' && inputs.zju_connect_nightly }}
           Compress-Archive -Path "${{ env.DISPLAY_NAME }}" -DestinationPath ${{ env.ARCHIVE_NAME }}.zip
 
       - name: Upload artifact
@@ -156,7 +160,7 @@ jobs:
 
       - name: Download and copy files
         run: |
-          ./scripts/deploy-macos.sh "${{ env.TARGET_NAME }}" "build" "x86_64" "${{ inputs.nightly || github.event_name != 'release' }}"
+          ./scripts/deploy-macos.sh "${{ env.TARGET_NAME }}" "build" "x86_64" "${{ github.event_name == 'workflow_dispatch' && inputs.zju_connect_nightly }}"
 
       - name: Import macOS signing certificate
         if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
@@ -261,7 +265,7 @@ jobs:
 
       - name: Download and copy files
         run: |
-          ./scripts/deploy-macos.sh "${{ env.TARGET_NAME }}" "build" "arm64" "${{ inputs.nightly || github.event_name != 'release' }}"
+          ./scripts/deploy-macos.sh "${{ env.TARGET_NAME }}" "build" "arm64" "${{ github.event_name == 'workflow_dispatch' && inputs.zju_connect_nightly }}"
 
       - name: Import macOS signing certificate
         if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
@@ -366,7 +370,7 @@ jobs:
 
       - name: Download and copy files
         run: |
-          ./scripts/deploy-linux.sh "${{ env.TARGET_NAME }}" "${{ env.DISPLAY_NAME }}" "build" "x86_64" "${{ inputs.nightly || github.event_name != 'release' }}"
+          ./scripts/deploy-linux.sh "${{ env.TARGET_NAME }}" "${{ env.DISPLAY_NAME }}" "build" "x86_64" "${{ github.event_name == 'workflow_dispatch' && inputs.zju_connect_nightly }}"
           mv *.AppImage ${{ env.ARCHIVE_NAME }}.AppImage
 
       - name: Upload artifact
@@ -417,7 +421,7 @@ jobs:
 
       - name: Download and copy files
         run: |
-          ./scripts/deploy-linux.sh "${{ env.TARGET_NAME }}" "${{ env.DISPLAY_NAME }}" "build" "arm64" "${{ inputs.nightly || github.event_name != 'release' }}"
+          ./scripts/deploy-linux.sh "${{ env.TARGET_NAME }}" "${{ env.DISPLAY_NAME }}" "build" "arm64" "${{ github.event_name == 'workflow_dispatch' && inputs.zju_connect_nightly }}"
           mv *.AppImage ${{ env.ARCHIVE_NAME }}.AppImage
 
       - name: Upload artifact
