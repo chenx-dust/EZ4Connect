@@ -148,7 +148,7 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings, const QS
                     if (authType == "auth/cas")
                     {
                         ui->casRadioButton->setChecked(true);
-                        ui->casLoginUrlLineEdit->setText(loginUrl);
+                        ui->loginUrlLineEdit->setText(loginUrl);
                     }
                     else if (authType == "auth/smsCheckCode")
                     {
@@ -222,7 +222,7 @@ void SettingWindow::loadSettings()
         ui->casRadioButton->setChecked(true);
     else
         ui->pswRadioButton->setChecked(true);
-    ui->casLoginUrlLineEdit->setText(settings->value("ZJUConnect/CasLoginURL").toString());
+    ui->loginUrlLineEdit->setText(settings->value("ZJUConnect/CasLoginURL").toString());
     ui->countryCodeLineEdit->setText(settings->value("ZJUConnect/PhoneCountryCode").toString());
     ui->phoneNumberLineEdit->setText(settings->value("ZJUConnect/PhoneNumber").toString());
 
@@ -297,7 +297,7 @@ void SettingWindow::applySettings()
     settings->setValue("ZJUConnect/Protocol", ui->atrustRadioButton->isChecked() ? "atrust" : "easyconnect");
     settings->setValue("ZJUConnect/LoginDomain", ui->loginDomainLineEdit->text());
     settings->setValue("ZJUConnect/AuthType", ui->casRadioButton->isChecked() ? "cas" : (ui->smsCheckCodeRadioButton->isChecked() ? "smsCheckCode" : "psw"));
-    settings->setValue("ZJUConnect/CasLoginURL", ui->casLoginUrlLineEdit->text());
+    settings->setValue("ZJUConnect/CasLoginURL", ui->loginUrlLineEdit->text());
     settings->setValue("ZJUConnect/PhoneCountryCode", ui->countryCodeLineEdit->text());
     settings->setValue("ZJUConnect/PhoneNumber", ui->phoneNumberLineEdit->text());
 
@@ -351,7 +351,7 @@ bool SettingWindow::isAuthSettingChanged()
     return currentAuthType != settings->value("ZJUConnect/AuthType").toString() ||
            ui->loginDomainLineEdit->text() != settings->value("ZJUConnect/LoginDomain").toString() ||
            (currentAuthType == "cas" &&
-            ui->casLoginUrlLineEdit->text() != settings->value("ZJUConnect/CasLoginURL").toString()) ||
+            ui->loginUrlLineEdit->text() != settings->value("ZJUConnect/CasLoginURL").toString()) ||
            ui->serverAddressLineEdit->text() != settings->value("ZJUConnect/ServerAddress").toString() ||
            ui->serverPortSpinBox->value() != settings->value("ZJUConnect/ServerPort").toInt();
 }
