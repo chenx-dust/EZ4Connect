@@ -461,12 +461,17 @@ bool linuxIsSystemProxySet()
     return process.readAllStandardOutput().contains("manual");
 }
 
-bool Utils::isSystemProxySet()
+bool Utils::isSystemProxySet(int http_port, int socks_port)
 {
+    Q_UNUSED(socks_port)
 #if defined(Q_OS_WINDOWS)
     QSettings proxySettings(R"(HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings)",
                             QSettings::NativeFormat);
-    return proxySettings.value("ProxyEnable", 0).toInt() == 1;
+    if (proxySettings.value("ProxyEnable", 0).toInt() != 1)
+        return false;
+    if (http_port > 0 && proxySettings.value("ProxyServer").toString() == "127.0.0.1:" + QString::number(http_port))
+        return false;
+    return true;
 #elif defined(Q_OS_MACOS)
     QStringList activeServices = macOSGetActiveNetworkServices();
     for (const QString &service : activeServices)

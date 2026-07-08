@@ -206,6 +206,7 @@ void SettingWindow::loadSettings()
     ui->reconnectTimeSpinBox->setValue(settings->value("Common/ReconnectTime").toInt());
     ui->autoReconnectCheckBox->setChecked(settings->value("Common/AutoReconnect").toBool());
 	ui->systemProxyBypassLineEdit->setText(settings->value("Common/SystemProxyBypass").toString());
+    ui->suppressProxyOverrideWarningCheckBox->setChecked(settings->value("Common/SuppressProxyOverrideWarning", false).toBool());
 
 
     ui->serverAddressLineEdit->setText(settings->value("ZJUConnect/ServerAddress").toString());
@@ -293,6 +294,7 @@ void SettingWindow::applySettings()
     settings->setValue("Common/ReconnectTime", ui->reconnectTimeSpinBox->value());
     settings->setValue("Common/AutoReconnect", ui->autoReconnectCheckBox->isChecked());
     settings->setValue("Common/SystemProxyBypass", ui->systemProxyBypassLineEdit->text());
+    settings->setValue("Common/SuppressProxyOverrideWarning", ui->suppressProxyOverrideWarningCheckBox->isChecked());
 
 
     settings->setValue("ZJUConnect/ServerAddress", ui->serverAddressLineEdit->text());

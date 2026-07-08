@@ -117,6 +117,7 @@ private:
 
     bool isZjuConnectLinked;
     bool isSystemProxySet;
+    bool isAutoReconnecting = false;
     ZJU_ERROR zjuConnectError;
 };
 

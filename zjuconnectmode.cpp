@@ -1,4 +1,5 @@
 #include <QMessageBox>
+#include <QCheckBox>
 #include <QInputDialog>
 #include <QApplication>
 
@@ -143,6 +144,7 @@ void MainWindow::initZjuConnect()
                     zjuConnectController->stop();
 
                     isZjuConnectLinked = false;
+                    isAutoReconnecting = true;
                     ui->pushButton1->click();
                 }
             });
@@ -251,10 +253,11 @@ void MainWindow::initZjuConnect()
                         trayConnectAction->setText("断开服务器");
                         ui->pushButton2->show();
 
-                        if (settings->value("Common/AutoSetProxy", false).toBool())
+                        if (!isAutoReconnecting && settings->value("Common/AutoSetProxy", false).toBool())
                         {
                             ui->pushButton2->click();
                         }
+                        isAutoReconnecting = false;
 
                         QString countryCode = settings->value("ZJUConnect/PhoneCountryCode").toString();
                         QString phoneNumber = settings->value("ZJUConnect/PhoneNumber").toString();
@@ -338,15 +341,30 @@ void MainWindow::initZjuConnect()
             {
                 if (!isSystemProxySet)
                 {
-                    if (Utils::isSystemProxySet())
+                    int http_port = settings->value("ZJUConnect/HTTPPort").toInt();
+                    int socks_port = settings->value("ZJUConnect/SOCKS5Port").toInt();
+                    if (Utils::isSystemProxySet(http_port, socks_port))
                     {
-                        int rtn = QMessageBox::warning(this, "警告",
-                            "当前已存在系统代理配置（可能是 Clash 或其它代理软件）\n是否覆盖当前系统代理配置？",
-                            QMessageBox::Yes | QMessageBox::No);
+                        bool suppressed = settings->value("Common/SuppressProxyOverrideWarning", false).toBool();
+                        if (!suppressed)
+                            return;
 
-                        if (rtn == QMessageBox::No)
+                        QMessageBox msgBox(QMessageBox::Warning, "警告",
+                            "当前已存在系统代理配置（可能是 Clash 或其它代理软件）\n是否覆盖当前系统代理配置？",
+                            QMessageBox::Yes | QMessageBox::No, this);
+
+                        QCheckBox *dontShowCheckBox = new QCheckBox("不再提示");
+                        msgBox.setCheckBox(dontShowCheckBox);
+
+                        if (msgBox.exec() == QMessageBox::No)
                         {
                             return;
+                        }
+
+                        if (dontShowCheckBox->isChecked())
+                        {
+                            settings->setValue("Common/SuppressProxyOverrideWarning", true);
+                            settings->sync();
                         }
                     }
 

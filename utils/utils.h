@@ -22,7 +22,7 @@ namespace Utils
 
     void showAboutMessageBox(QWidget *parent = nullptr);
 
-    bool isSystemProxySet();
+    bool isSystemProxySet(int http_port = -1, int socks_port = -1);
 
     void setSystemProxy(int http_port, int socks_port, const QString &bypass);
 
