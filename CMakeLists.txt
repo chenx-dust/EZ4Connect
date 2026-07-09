@@ -48,6 +48,7 @@ set(SOURCE_FILES
     utils/profilemanager.cpp
     utils/proxysettings.cpp
     utils/coreversion.cpp
+    utils/trustdevice.cpp
     resource.qrc
 )
 

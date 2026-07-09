@@ -124,7 +124,7 @@ Line3</string>
      <x>0</x>
      <y>0</y>
      <width>600</width>
-     <height>31</height>
+     <height>33</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -151,6 +151,10 @@ Line3</string>
     </property>
     <addaction name="disableProxyAction"/>
     <addaction name="clearClientDataAction"/>
+    <addaction name="separator"/>
+    <addaction name="trustDeviceAction"/>
+    <addaction name="untrustDeviceAction"/>
+    <addaction name="separator"/>
     <addaction name="openLogAction"/>
     <addaction name="settingAction"/>
     <addaction name="exitAction"/>
@@ -193,12 +197,7 @@ Line3</string>
   </action>
   <action name="disableProxyAction">
    <property name="text">
-    <string>禁用系统代理</string>
-   </property>
-  </action>
-  <action name="action">
-   <property name="text">
-    <string>检查更新</string>
+    <string>清理系统代理</string>
    </property>
   </action>
   <action name="checkUpdateAction">
@@ -222,6 +221,22 @@ Line3</string>
   <action name="clearClientDataAction">
    <property name="text">
     <string>清理登录缓存</string>
+   </property>
+  </action>
+  <action name="trustDeviceAction">
+   <property name="text">
+    <string>设置授信设备</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="untrustDeviceAction">
+   <property name="text">
+    <string>取消授信设备</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
  </widget>

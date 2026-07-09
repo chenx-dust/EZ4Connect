@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget *parent) :
             {
                 QString logFilePath = Utils::getLogFilePath();
                 QFileInfo logFileInfo(logFilePath);
-                
+
                 if (logFileInfo.exists())
                 {
                     QDesktopServices::openUrl(QUrl::fromLocalFile(logFilePath));
@@ -91,8 +91,8 @@ MainWindow::MainWindow(QWidget *parent) :
             [&]()
             {
                 QMessageBox messageBox(this);
-                messageBox.setWindowTitle("禁用系统代理");
-                messageBox.setText("是否禁用系统代理？");
+                messageBox.setWindowTitle("清理系统代理");
+                messageBox.setText("是否清理系统代理？");
 
                 messageBox.addButton(QMessageBox::Yes)->setText("是");
                 messageBox.addButton(QMessageBox::No)->setText("否");
@@ -112,7 +112,7 @@ MainWindow::MainWindow(QWidget *parent) :
                     Utils::clearSystemProxy();
                 }
 
-                addLog("已禁用系统代理设置");
+                addLog("已清理系统代理设置");
             });
 
     // 文件-清理登录数据
@@ -134,6 +134,48 @@ MainWindow::MainWindow(QWidget *parent) :
 
                 Utils::clearClientData(currentProfileId);
                 addLog("已清理登录缓存");
+            });
+
+    // 文件-设置授信设备
+    connect(ui->trustDeviceAction, &QAction::triggered, this,
+            [&]()
+            {
+                try
+                {
+                    Utils::setDeviceTrust(this,
+                        settings->value("ZJUConnect/Protocol", "easyconnect").toString(),
+                        settings->value("ZJUConnect/ServerAddress").toString(),
+                        settings->value("ZJUConnect/ServerPort").toInt(),
+                        currentProfileId, true);
+                    addLog("设置授信设备成功");
+                    QMessageBox::information(this, "成功", "已设置授信设备");
+                }
+                catch (const std::runtime_error &e)
+                {
+                    addLog("设置授信设备失败：" + QString(e.what()));
+                    QMessageBox::critical(this, "错误", "设置授信设备失败：\n" + QString(e.what()));
+                }
+            });
+
+    // 文件-取消授信设备
+    connect(ui->untrustDeviceAction, &QAction::triggered, this,
+            [&]()
+            {
+                try
+                {
+                    Utils::setDeviceTrust(this,
+                        settings->value("ZJUConnect/Protocol", "easyconnect").toString(),
+                        settings->value("ZJUConnect/ServerAddress").toString(),
+                        settings->value("ZJUConnect/ServerPort").toInt(),
+                        currentProfileId, false);
+                    addLog("取消授信设备成功");
+                    QMessageBox::information(this, "成功", "已取消授信设备");
+                }
+                catch (const std::runtime_error &e)
+                {
+                    addLog("取消授信设备失败：" + QString(e.what()));
+                    QMessageBox::critical(this, "错误", "取消授信设备失败：\n" + QString(e.what()));
+                }
             });
 
     // 帮助-检查更新
@@ -166,7 +208,7 @@ MainWindow::MainWindow(QWidget *parent) :
             }
     );
 
-    connect(this, &MainWindow::SetModeFinished, this, 
+    connect(this, &MainWindow::SetModeFinished, this,
 			[&]()
 		    {
 		        if (isFirstTimeSetMode)
@@ -223,7 +265,7 @@ MainWindow::MainWindow(QWidget *parent) :
             auto nowVersionQ = QVersionNumber::fromString(nowVersion, &nowVersionSuffix);
             auto latestVersionQ = QVersionNumber::fromString(latestVersion, &latestVersionSuffix);
 
-            if (latestVersionQ > nowVersionQ || 
+            if (latestVersionQ > nowVersionQ ||
                 (latestVersionQ == nowVersionQ && latestVersion.right(latestVersionSuffix) != nowVersion.right(nowVersionSuffix)))
             {
                 QMessageBox msgBox;

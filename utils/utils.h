@@ -51,6 +51,8 @@ namespace Utils
     QString getLogFilePath();
 
     QString getArgValue(const QStringList &args, const QString &key);
+
+    void setDeviceTrust(QObject *parent, const QString &protocol, const QString &server, int port, const QString &profileId, bool trust);
 }
 
 #endif //UTILS_H
