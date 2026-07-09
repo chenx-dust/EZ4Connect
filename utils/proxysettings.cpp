@@ -178,7 +178,7 @@ enum class macOSProxyType
     SOCKSFirewallProxy
 };
 
-bool macOSIsSystemProxySet(macOSProxyType proxyType, const QString networkService)
+bool macOSIsSystemProxySet(macOSProxyType proxyType, const QString networkService, int port)
 {
     QStringList args;
     switch (proxyType)
@@ -207,7 +207,14 @@ bool macOSIsSystemProxySet(macOSProxyType proxyType, const QString networkServic
         QMessageBox::critical(nullptr, "获取系统代理设置失败", "无法获取系统代理设置：" + process.readAllStandardError());
         return true;
     }
-    return process.readAllStandardOutput().contains("Enabled: Yes");
+    QString output = process.readAllStandardOutput();
+    if (output.contains("Enabled: Yes")) {
+        if (output.contains("Server: 127.0.0.1") && output.contains("Port: " + QString::number(port))) {
+            return false;
+        }
+        return true;
+    }
+    return false;
 }
 
 void macOSSetSystemProxy(macOSProxyType proxyType, const QString &networkService, const QString &proxyServer, int port)
@@ -470,22 +477,68 @@ void linuxClearSystemProxy()
     }
 }
 
-bool linuxIsSystemProxySet()
+bool linuxIsSystemProxySet(int http_port, int socks_port)
 {
-    QProcess process;
-    process.start("gsettings", {"get", "org.gnome.system.proxy", "mode"});
-    process.waitForFinished();
-    return process.readAllStandardOutput().contains("manual");
+    const bool isKDE = qEnvironmentVariable("XDG_SESSION_DESKTOP") == "KDE" ||
+                       qEnvironmentVariable("XDG_SESSION_DESKTOP") == "plasma";
+
+    if (isKDE)
+    {
+        QString KDEver = qEnvironmentVariable("KDE_SESSION_VERSION");
+        QString kreadconfigName = "kreadconfig" + KDEver;
+        const auto configPath = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
+
+        QProcess process;
+        process.start(kreadconfigName, {"--file", configPath + "/kioslaverc",
+                                        "--group", "Proxy Settings",
+                                        "--key", "ProxyType"});
+        process.waitForFinished();
+        if (process.readAllStandardOutput().trimmed() != "1")
+            return false;
+
+        if (http_port > 0)
+        {
+            QProcess httpProcess;
+            httpProcess.start(kreadconfigName, {"--file", configPath + "/kioslaverc",
+                                                "--group", "Proxy Settings",
+                                                "--key", "httpProxy"});
+            httpProcess.waitForFinished();
+            if (httpProcess.readAllStandardOutput().trimmed() == "http://127.0.0.1 " + QString::number(http_port))
+                return false;
+        }
+        return true;
+    }
+
+    QProcess modeProcess;
+    modeProcess.start("gsettings", {"get", "org.gnome.system.proxy", "mode"});
+    modeProcess.waitForFinished();
+    if (!modeProcess.readAllStandardOutput().contains("manual"))
+        return false;
+
+    if (http_port > 0)
+    {
+        QProcess hostProcess;
+        hostProcess.start("gsettings", {"get", "org.gnome.system.proxy.http", "host"});
+        hostProcess.waitForFinished();
+        QProcess portProcess;
+        portProcess.start("gsettings", {"get", "org.gnome.system.proxy.http", "port"});
+        portProcess.waitForFinished();
+        if (hostProcess.readAllStandardOutput().trimmed().contains("127.0.0.1") &&
+            portProcess.readAllStandardOutput().trimmed() == QString::number(http_port))
+            return false;
+    }
+    return true;
 }
 
 bool Utils::isSystemProxySet(int http_port, int socks_port)
 {
-    Q_UNUSED(socks_port)
 #if defined(Q_OS_WINDOWS)
+    Q_UNUSED(socks_port)
     QSettings proxySettings(R"(HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings)",
                             QSettings::NativeFormat);
     if (proxySettings.value("ProxyEnable", 0).toInt() != 1)
         return false;
+    // if same settings
     if (http_port > 0 && proxySettings.value("ProxyServer").toString() == "127.0.0.1:" + QString::number(http_port))
         return false;
     return true;
@@ -493,16 +546,16 @@ bool Utils::isSystemProxySet(int http_port, int socks_port)
     QStringList activeServices = macOSGetActiveNetworkServices();
     for (const QString &service : activeServices)
     {
-        if (macOSIsSystemProxySet(macOSProxyType::WebProxy, service))
+        if (macOSIsSystemProxySet(macOSProxyType::WebProxy, service, http_port))
             return true;
-        if (macOSIsSystemProxySet(macOSProxyType::SecureWebProxy, service))
+        if (macOSIsSystemProxySet(macOSProxyType::SecureWebProxy, service, http_port))
             return true;
-        if (macOSIsSystemProxySet(macOSProxyType::SOCKSFirewallProxy, service))
+        if (macOSIsSystemProxySet(macOSProxyType::SOCKSFirewallProxy, service, socks_port))
             return true;
     }
     return false;
 #elif defined(Q_OS_LINUX)
-    return linuxIsSystemProxySet();
+    return linuxIsSystemProxySet(http_port, socks_port);
 #endif
 }
 
