@@ -348,25 +348,24 @@ void MainWindow::initZjuConnect()
                         bool suppressed = settings->value("Common/SuppressProxyOverrideWarning", false).toBool();
                         if (suppressed) {
                             addLog("跳过系统代理覆盖警告，因为已设置了不再提示");
-                            return;
-                        }
+                        } else {
+                            QMessageBox msgBox(QMessageBox::Warning, "警告",
+                                "当前已存在系统代理配置（可能是 Clash 或其它代理软件）\n是否覆盖当前系统代理配置？",
+                                QMessageBox::Yes | QMessageBox::No, this);
 
-                        QMessageBox msgBox(QMessageBox::Warning, "警告",
-                            "当前已存在系统代理配置（可能是 Clash 或其它代理软件）\n是否覆盖当前系统代理配置？",
-                            QMessageBox::Yes | QMessageBox::No, this);
+                            QCheckBox *dontShowCheckBox = new QCheckBox("不再提示");
+                            msgBox.setCheckBox(dontShowCheckBox);
 
-                        QCheckBox *dontShowCheckBox = new QCheckBox("不再提示");
-                        msgBox.setCheckBox(dontShowCheckBox);
+                            if (msgBox.exec() == QMessageBox::No)
+                            {
+                                return;
+                            }
 
-                        if (msgBox.exec() == QMessageBox::No)
-                        {
-                            return;
-                        }
-
-                        if (dontShowCheckBox->isChecked())
-                        {
-                            settings->setValue("Common/SuppressProxyOverrideWarning", true);
-                            settings->sync();
+                            if (dontShowCheckBox->isChecked())
+                            {
+                                settings->setValue("Common/SuppressProxyOverrideWarning", true);
+                                settings->sync();
+                            }
                         }
                     }
 
