@@ -12,7 +12,41 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="1" colspan="3">
+    <item row="4" column="5">
+     <widget class="QPushButton" name="pushButton2">
+      <property name="text">
+       <string>设置系统代理</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="3">
+     <widget class="QPushButton" name="pushButton1">
+      <property name="text">
+       <string>连接服务器</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" rowspan="4" colspan="3">
+     <widget class="QPlainTextEdit" name="logPlainTextEdit">
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+      <property name="maximumBlockCount">
+       <number>1000</number>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="3" colspan="3">
+     <widget class="QLabel" name="accountLabel">
+      <property name="text">
+       <string>ZJU-Connect 图形界面
+支持 aTrust 和 EasyConnect 协议
+
+如遇问题欢迎加入 QQ 群 1037726410 反馈</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="3" colspan="3">
      <widget class="QLabel" name="versionLabel">
       <property name="text">
        <string>Line 1
@@ -24,14 +58,23 @@ Line3</string>
       </property>
      </widget>
     </item>
-    <item row="4" column="3">
-     <widget class="QPushButton" name="pushButton2">
-      <property name="text">
-       <string>设置系统代理</string>
+    <item row="4" column="4">
+     <spacer name="horizontalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
-     </widget>
+      <property name="sizeType">
+       <enum>QSizePolicy::Policy::Minimum</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+     </spacer>
     </item>
-    <item row="0" column="1" colspan="3">
+    <item row="0" column="3" colspan="3">
      <widget class="QLabel" name="applicationNameLabel">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -55,83 +98,47 @@ Line3</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="1" colspan="3">
-     <widget class="QLabel" name="accountLabel">
+    <item row="4" column="0">
+     <widget class="QPushButton" name="copyLogPushButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="toolTip">
+       <string>复制日志到剪贴板</string>
+      </property>
       <property name="text">
-       <string>
-你知道吗？
-本软件的内核是 zju-connect ，
-可以连接任何兼容它的服务器！
-
-如遇问题欢迎加入 QQ 群 1037726410 反馈。</string>
+       <string>复制日志</string>
       </property>
      </widget>
-    </item>
-    <item row="4" column="0">
-     <layout class="QHBoxLayout" name="logButtonLayout">
-      <item>
-       <widget class="QPushButton" name="copyLogPushButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>复制日志到剪贴板</string>
-        </property>
-        <property name="text">
-         <string>复制日志</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="clearLogPushButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>清空窗口中的日志</string>
-        </property>
-        <property name="text">
-         <string>清空日志</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </item>
     <item row="4" column="1">
-     <widget class="QPushButton" name="pushButton1">
+     <widget class="QPushButton" name="clearLogPushButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="toolTip">
+       <string>清空窗口中的日志</string>
+      </property>
       <property name="text">
-       <string>连接服务器</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0" rowspan="4">
-     <widget class="QPlainTextEdit" name="logPlainTextEdit">
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-      <property name="maximumBlockCount">
-       <number>1000</number>
+       <string>清空日志</string>
       </property>
      </widget>
     </item>
     <item row="4" column="2">
-     <spacer name="horizontalSpacer_2">
+     <spacer name="horizontalSpacer">
       <property name="orientation">
        <enum>Qt::Orientation::Horizontal</enum>
       </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Policy::Minimum</enum>
-      </property>
       <property name="sizeHint" stdset="0">
        <size>
-        <width>0</width>
-        <height>0</height>
+        <width>40</width>
+        <height>20</height>
        </size>
       </property>
      </spacer>
