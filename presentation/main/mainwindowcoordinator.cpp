@@ -8,6 +8,7 @@
 #include "infrastructure/coreprocess/zjuconnectprocess.h"
 #include "infrastructure/platform/platformsystemproxybackend.h"
 #include "infrastructure/settings/profilemanager.h"
+#include "infrastructure/security/keychaincredentialstore.h"
 #include "infrastructure/update/updatechecker.h"
 #include "presentation/coordinators/authdialogcoordinator.h"
 
@@ -34,6 +35,7 @@ MainWindowCoordinator::MainWindowCoordinator(
           this
       ))
 {
+    authenticationCoordinator->setCredentialStore(std::make_shared<KeychainCredentialStore>());
     connect(
         connectionSession,
         &ConnectionSession::askSudoPass,

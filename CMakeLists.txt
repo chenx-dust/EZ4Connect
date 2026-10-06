@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 project(EZ4Connect)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -31,6 +31,33 @@ find_package(Qt6 6.5 COMPONENTS
     REQUIRED
 )
 
+include(CTest)
+
+# Keep dependency options local: in particular, QtKeychain's own tests and
+# output-directory defaults must not change the application's build layout.
+function(add_credential_library)
+    include(FetchContent)
+    if(POLICY CMP0135)
+        cmake_policy(SET CMP0135 NEW)
+    endif()
+    set(BUILD_WITH_QT5 OFF)
+    set(BUILD_SHARED_LIBS OFF)
+    set(BUILD_TRANSLATIONS OFF)
+    set(BUILD_TEST_APPLICATION OFF)
+    set(BUILD_QTQUICK_DEMO OFF)
+    set(BUILD_TESTING OFF)
+    set(USE_CREDENTIAL_STORE ON)
+    set(USE_COMPAT_NAMING_SCHEME OFF)
+    set(LIBSECRET_SUPPORT ON)
+    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+    FetchContent_Declare(qtkeychain
+        URL https://codeload.github.com/frankosterfeld/qtkeychain/tar.gz/875f77d9f61bd97fd84cca47ce3bc71186dfbd09
+        URL_HASH SHA256=f367072fdf43551104cc718e43056d218d0c6d81c1b1758603fb3cd87144f8cc
+    )
+    FetchContent_MakeAvailable(qtkeychain)
+endfunction()
+
+add_credential_library()
 
 set(SOURCE_FILES
     main.cpp
@@ -46,6 +73,8 @@ set(SOURCE_FILES
     application/settingsmigrator.cpp
     application/systemproxysession.cpp
     application/defaultsettings.cpp
+    application/ssocredentialscope.cpp
+    infrastructure/security/keychaincredentialstore.cpp
     infrastructure/coreprocess/corecommandbuilder.cpp
     infrastructure/coreprocess/consoleoutputdecoder.cpp
     infrastructure/coreprocess/coreexecutable.cpp
@@ -129,12 +158,45 @@ target_link_libraries(${PROJECT_NAME}
         Qt::Core5Compat
         Qt::WebEngineWidgets
         SingleApplication::SingleApplication
+        qt6keychain
         ${PLATFORM_LIBS}
 )
 
-include(CTest)
-
 if(BUILD_TESTING)
+    add_executable(ssocredentialscope_test
+        tests/ssocredentialscope_test.cpp
+        application/ssocredentialscope.cpp
+    )
+    target_include_directories(ssocredentialscope_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_libraries(ssocredentialscope_test Qt::Core)
+    add_test(NAME ssocredentialscope_test COMMAND ssocredentialscope_test)
+
+    add_executable(keychaincredentialstore_test
+        tests/keychaincredentialstore_test.cpp
+        infrastructure/security/keychaincredentialstore.cpp
+    )
+    target_include_directories(keychaincredentialstore_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_libraries(keychaincredentialstore_test Qt::Core qt6keychain)
+    if(APPLE)
+        target_link_libraries(keychaincredentialstore_test Qt::Gui "-framework Security")
+    endif()
+    add_test(NAME keychaincredentialstore_test COMMAND keychaincredentialstore_test)
+    set_tests_properties(keychaincredentialstore_test PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 90)
+
+    add_executable(sso_credentials_script_test tests/sso_credentials_script_test.cpp resource.qrc)
+    target_link_libraries(sso_credentials_script_test Qt::Core Qt::Gui Qt::Widgets Qt::WebEngineWidgets)
+    add_test(NAME sso_credentials_script_test COMMAND sso_credentials_script_test)
+
+    add_executable(ssologinwebview_test
+        tests/ssologinwebview_test.cpp
+        presentation/dialogs/ssologinwebview/ssologinwebview.cpp
+        application/ssocredentialscope.cpp
+        resource.qrc
+    )
+    target_include_directories(ssologinwebview_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_libraries(ssologinwebview_test Qt::Core Qt::Gui Qt::Widgets Qt::WebEngineWidgets)
+    add_test(NAME ssologinwebview_test COMMAND ssologinwebview_test)
+
     add_executable(applicationlogger_test
         tests/applicationlogger_test.cpp
         application/applicationlogger.cpp

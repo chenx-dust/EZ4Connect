@@ -1,0 +1,13 @@
+--- a/src/plugins/platforms/cocoa/qcocoasystemtrayicon.mm
++++ b/src/plugins/platforms/cocoa/qcocoasystemtrayicon.mm
+@@ -244,3 +244,10 @@
+ void QCocoaSystemTrayIcon::emitActivated()
+ {
++    // Backport QTBUG-147449: macOS 27 can dispatch this callback with a
++    // non-mouse event, for which accessing clickCount raises an exception.
++    if (cocoaEvent2QtMouseEvent(NSApp.currentEvent) == QEvent::None) {
++        emit activated(QPlatformSystemTrayIcon::Unknown);
++        return;
++    }
++
+     auto *mouseEvent = NSApp.currentEvent;

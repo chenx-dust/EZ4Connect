@@ -32,7 +32,9 @@ fi
 chmod a+x linuxdeploy linuxdeploy-plugin-qt
 
 # Create AppDir structure
-mkdir -p AppDir/usr/bin AppDir/usr/lib AppDir/usr/share/applications AppDir/usr/share/icons/hicolor/scalable/apps
+mkdir -p AppDir/usr/bin AppDir/usr/lib AppDir/usr/share/applications AppDir/usr/share/icons/hicolor/scalable/apps AppDir/usr/share/doc/EZ4Connect
+cp docs/THIRD_PARTY_NOTICES.txt AppDir/usr/share/doc/EZ4Connect/
+cp /usr/share/doc/libsecret-1-0/copyright AppDir/usr/share/doc/EZ4Connect/libsecret-copyright.txt
 
 # Copy executable
 cp "$BUILD_DIR/$TARGET_NAME" AppDir/usr/bin/
@@ -75,4 +77,6 @@ EOF
 # Build AppImage
 export EXTRA_QT_PLUGINS="waylandcompositor"
 export EXTRA_PLATFORM_PLUGINS="libqwayland.so"
-./linuxdeploy --appdir AppDir --output appimage --plugin qt
+# QtKeychain dynamically loads libsecret, so it may not appear in ldd output.
+LIBSECRET_PATH="$(pkg-config --variable=libdir libsecret-1)/libsecret-1.so.0"
+./linuxdeploy --appdir AppDir --library "$LIBSECRET_PATH" --output appimage --plugin qt

@@ -35,6 +35,11 @@ void AuthDialogCoordinator::setSettings(QSettings *newSettings)
     settings = newSettings;
 }
 
+void AuthDialogCoordinator::setCredentialStore(std::shared_ptr<CredentialStore> store)
+{
+    credentialStore = std::move(store);
+}
+
 void AuthDialogCoordinator::requestLogin(
     const QString &username,
     const QString &password
@@ -346,6 +351,7 @@ void AuthDialogCoordinator::requestSsoLogin()
     ssoLoginWebView = new SsoLoginWebView(parentWidget);
     ssoLoginWebView->setAttribute(Qt::WA_DeleteOnClose);
     ssoLoginWebView->setCallbackServerUrl(serverUrl);
+    ssoLoginWebView->setCredentialStore(credentialStore, settings->fileName(), serverUrl);
     ssoLoginWebView->setInitialUrl(QUrl::fromUserInput(ssoUrl));
     connect(ssoLoginWebView, &SsoLoginWebView::loginCompleted, this,
             [this](const QString &url)

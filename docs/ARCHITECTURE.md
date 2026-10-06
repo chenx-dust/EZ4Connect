@@ -36,6 +36,7 @@ infrastructure -------+
 - `AuthDialogCoordinator` 管理登录、sudo、验证码、TOTP 和 SSO 对话框。
 - `ConnectionSession` 负责核心进程、重连和连接状态，不依赖具体 `QProcess` 实现。
 - `ProfileService` 持有当前配置上下文，`SettingsMigrator` 负责配置版本迁移。
+- `CredentialStore` 是凭据读写端口，`KeychainCredentialStore` 通过 QtKeychain 访问各平台的系统凭据库；`MainWindowCoordinator` 将其注入认证界面。`SsoCredentialScope` 规范化配置和 HTTPS 来源，SSO 网页层只负责表单识别与输入事件，不直接调用系统钥匙串 API。
 
 新增代码应按“变化原因”归位：界面行为放入 `presentation`，用例状态放入
 `application`，平台或文件 I/O 放入 `infrastructure`，可独立验证的连接规则放入

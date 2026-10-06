@@ -33,6 +33,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install test and credential-store dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsecret-1-dev pkg-config gnome-keyring dbus-x11 xvfb libxcb-cursor0
+
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
@@ -54,7 +59,19 @@ jobs:
 
       - name: Run tests
         run: |
-          ctest --test-dir build --build-config Release --output-on-failure
+          credential_test_dir=$(mktemp -d "$RUNNER_TEMP/ez4connect-credentials.XXXXXX")
+          trap 'rm -rf "$credential_test_dir"' EXIT
+          export XDG_CONFIG_HOME="$credential_test_dir/config"
+          export XDG_DATA_HOME="$credential_test_dir/data"
+          export XDG_CACHE_HOME="$credential_test_dir/cache"
+          export XDG_RUNTIME_DIR="$credential_test_dir/runtime"
+          mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_CACHE_HOME" "$XDG_RUNTIME_DIR/keyring"
+          chmod 700 "$XDG_RUNTIME_DIR"
+          export EZ4CONNECT_REQUIRE_CREDENTIAL_STORE_TEST=1
+          dbus-run-session -- bash -euo pipefail <<'TEST_SESSION'
+          eval "$(printf '%s' 'synthetic-ci-keyring' | gnome-keyring-daemon --unlock --components=secrets --control-directory="$XDG_RUNTIME_DIR/keyring")"
+          xvfb-run -a ctest --test-dir build --build-config Release --output-on-failure
+          TEST_SESSION
 
   build-windows-x64:
     runs-on: windows-latest
@@ -90,6 +107,27 @@ jobs:
       - name: Build
         run: |
           cmake --build build --target ${{ env.TARGET_NAME }} --config Release --parallel $(nproc)
+
+      - name: Test Windows credential store and SSO
+        env:
+          EZ4CONNECT_REQUIRE_CREDENTIAL_STORE_TEST: '1'
+        run: |
+          cmake --build build --target keychaincredentialstore_test ssocredentialscope_test sso_credentials_script_test ssologinwebview_test --config Release --parallel 2
+          ctest --test-dir build --build-config Release --output-on-failure -R '^(keychaincredentialstore_test|ssocredentialscope_test|sso_credentials_script_test|ssologinwebview_test)$'
+
+      - name: Upload Windows x64 test programs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: EZ4Connect-tests-windows-x64
+          if-no-files-found: error
+          path: |
+            build/Release/keychaincredentialstore_test.exe
+            build/Release/ssocredentialscope_test.exe
+            build/Release/sso_credentials_script_test.exe
+            build/Release/ssologinwebview_test.exe
+            docs/THIRD_PARTY_NOTICES.txt
+            LICENSE
 
       - name: Download and copy files
         shell: pwsh
@@ -139,6 +177,27 @@ jobs:
         run: |
           cmake --build build --target ${{ env.TARGET_NAME }} --config Release --parallel $(nproc)
 
+      - name: Test Windows credential store and SSO
+        env:
+          EZ4CONNECT_REQUIRE_CREDENTIAL_STORE_TEST: '1'
+        run: |
+          cmake --build build --target keychaincredentialstore_test ssocredentialscope_test sso_credentials_script_test ssologinwebview_test --config Release --parallel 2
+          ctest --test-dir build --build-config Release --output-on-failure -R '^(keychaincredentialstore_test|ssocredentialscope_test|sso_credentials_script_test|ssologinwebview_test)$'
+
+      - name: Upload Windows ARM64 test programs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: EZ4Connect-tests-windows-arm64
+          if-no-files-found: error
+          path: |
+            build/Release/keychaincredentialstore_test.exe
+            build/Release/ssocredentialscope_test.exe
+            build/Release/sso_credentials_script_test.exe
+            build/Release/ssologinwebview_test.exe
+            docs/THIRD_PARTY_NOTICES.txt
+            LICENSE
+
       - name: Download and copy files
         shell: pwsh
         run: |
@@ -186,7 +245,21 @@ jobs:
         run: |
           cmake --build build --target ${{ env.TARGET_NAME }} --parallel $(nproc)
 
-      - name: Download and copy files
+      - name: Build and test the macOS x64 Cocoa tray fix
+        run: |
+          if [ "$(uname -m)" = arm64 ] && ! arch -x86_64 /usr/bin/true; then
+            echo "x64 tray tests require an Intel runner or an Apple Silicon runner with Rosetta installed." >&2
+            exit 1
+          fi
+          ./scripts/build-macos-cocoa-tray-fix.sh build x86_64
+          cocoa_fix_dir="$PWD/build/macos-cocoa-tray-fix"
+          qt_prefix="$(qmake -query QT_INSTALL_PREFIX)"
+          TRAY_TEST_PLUGIN_ROOT="$cocoa_fix_dir" \
+          TRAY_TEST_FRAMEWORK_ROOT="$qt_prefix/lib" \
+          DYLD_FRAMEWORK_PATH="$qt_prefix/lib" \
+            "$cocoa_fix_dir/macos_tray_event_test"
+
+      - name: Deploy and test the packaged macOS x64 app
         run: |
           ./scripts/deploy-macos.sh "${{ env.TARGET_NAME }}" "build" "x86_64" "${{ github.event_name == 'workflow_dispatch' && inputs.zju_connect_nightly }}"
 
@@ -291,7 +364,42 @@ jobs:
         run: |
           cmake --build build --target ${{ env.TARGET_NAME }} --parallel $(nproc)
 
-      - name: Download and copy files
+      - name: Build and test the macOS ARM64 Cocoa tray fix
+        run: |
+          ./scripts/build-macos-cocoa-tray-fix.sh build arm64
+          cocoa_fix_dir="$PWD/build/macos-cocoa-tray-fix"
+          qt_prefix="$(qmake -query QT_INSTALL_PREFIX)"
+          TRAY_TEST_PLUGIN_ROOT="$cocoa_fix_dir" \
+          TRAY_TEST_FRAMEWORK_ROOT="$qt_prefix/lib" \
+          DYLD_FRAMEWORK_PATH="$qt_prefix/lib" \
+            "$cocoa_fix_dir/macos_tray_event_test"
+
+      - name: Test macOS credential store in a temporary keychain
+        env:
+          EZ4CONNECT_REQUIRE_CREDENTIAL_STORE_TEST: '1'
+        run: |
+          cmake --build build --target keychaincredentialstore_test ssocredentialscope_test --parallel 2
+          credential_test_keychain="$RUNNER_TEMP/ez4connect-synthetic.keychain-db"
+          read -r original_default_keychain < <(security default-keychain -d user)
+          original_default_keychain=${original_default_keychain//\"/}
+          original_keychains=()
+          while read -r keychain; do
+            original_keychains+=("${keychain//\"/}")
+          done < <(security list-keychains -d user)
+          cleanup_credential_test_keychain() {
+            security default-keychain -d user -s "$original_default_keychain" || true
+            security list-keychains -d user -s "${original_keychains[@]}" || true
+            security delete-keychain "$credential_test_keychain" || true
+          }
+          security create-keychain -p 'synthetic-ci-keychain' "$credential_test_keychain"
+          trap cleanup_credential_test_keychain EXIT
+          security set-keychain-settings -lut 3600 "$credential_test_keychain"
+          security unlock-keychain -p 'synthetic-ci-keychain' "$credential_test_keychain"
+          security list-keychains -d user -s "$credential_test_keychain" "${original_keychains[@]}"
+          security default-keychain -d user -s "$credential_test_keychain"
+          ctest --test-dir build --output-on-failure -R '^(keychaincredentialstore_test|ssocredentialscope_test)$'
+
+      - name: Deploy and test the packaged macOS ARM64 app
         run: |
           ./scripts/deploy-macos.sh "${{ env.TARGET_NAME }}" "build" "arm64" "${{ github.event_name == 'workflow_dispatch' && inputs.zju_connect_nightly }}"
 
@@ -368,6 +476,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install credential-store build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsecret-1-dev pkg-config
+
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
@@ -417,7 +530,7 @@ jobs:
       - name: Setup dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libevent-2.1-7t64 libminizip1t64
+          sudo apt-get install -y libevent-2.1-7t64 libminizip1t64 libsecret-1-dev pkg-config
 
       - name: Install Qt
         uses: jdpurcell/install-qt-action@v5

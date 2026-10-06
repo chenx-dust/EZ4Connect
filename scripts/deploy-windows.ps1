@@ -32,6 +32,7 @@ Remove-Item -Path $ZjuZipPath
 # Copy additional files
 Copy-Item -Path "../libs/wintun/bin/$Architecture/wintun.dll" -Destination .
 Copy-Item -Path "../resource/qt.conf" -Destination .
+Copy-Item -Path "../docs/THIRD_PARTY_NOTICES.txt" -Destination .
 
 # Remove vc_redist executable
 if ($Architecture -eq "amd64") {

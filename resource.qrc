@@ -4,5 +4,6 @@
         <file>resource/mainwindow.qss</file>
         <file>resource/mainwindow-light.qss</file>
         <file>resource/mainwindow-dark.qss</file>
+        <file>resource/sso-credentials.js</file>
     </qresource>
 </RCC>

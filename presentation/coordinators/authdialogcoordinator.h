@@ -3,6 +3,9 @@
 
 #include <QObject>
 #include <QPointer>
+#include <memory>
+
+class CredentialStore;
 
 class GraphCaptchaWindow;
 class LoginWindow;
@@ -24,6 +27,7 @@ public:
     );
 
     void setSettings(QSettings *settings);
+    void setCredentialStore(std::shared_ptr<CredentialStore> store);
     void requestLogin(const QString &username, const QString &password);
     void requestPhoneNumber(
         const QString &countryCode,
@@ -55,6 +59,7 @@ private:
     QPointer<SudoWindow> sudoWindow;
     QPointer<GraphCaptchaWindow> graphCaptchaWindow;
     QPointer<SsoLoginWebView> ssoLoginWebView;
+    std::shared_ptr<CredentialStore> credentialStore;
 };
 
 #endif // AUTHDIALOGCOORDINATOR_H
