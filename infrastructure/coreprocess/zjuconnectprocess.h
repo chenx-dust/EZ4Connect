@@ -32,6 +32,10 @@ private:
 
     QTemporaryDir *tempDir = nullptr;
 
+    // Path handed to the core as -graph-code-file; the aTrust captcha prompt
+    // points the dialog at this file instead of reporting a path itself.
+    QString graphCodeFile;
+
     CoreOutputBuffer standardOutputBuffer;
     CoreOutputBuffer standardErrorBuffer;
     bool stopRequested = false;

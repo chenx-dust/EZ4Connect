@@ -90,8 +90,13 @@ void ZjuConnectProcess::processOutputLines(const QList<QByteArray> &lines)
             emit askSudoPass();
             break;
         case CoreOutputEvent::GraphCaptcha:
-            emit graphCaptcha(CoreOutputParser::graphCaptchaFile(line));
+        {
+            // The aTrust core writes the image to the path we passed it and asks
+            // for the clicks on stdin, so the prompt carries no path of its own.
+            const QString reportedFile = CoreOutputParser::graphCaptchaFile(line);
+            emit graphCaptcha(reportedFile.isEmpty() ? graphCodeFile : reportedFile);
             break;
+        }
         case CoreOutputEvent::SmsCodeWithSkipOption:
             emit smsCode(true);
             break;
@@ -208,6 +213,7 @@ void ZjuConnectProcess::start(const ConnectionProfile &profile)
         tempDir->setAutoRemove(true);
     }
     runtimePaths.graphCodeFile = tempDir->filePath("graph.jpg");
+    graphCodeFile = runtimePaths.graphCodeFile;
 
     if (profile.endpoint.protocol == "atrust")
     {
