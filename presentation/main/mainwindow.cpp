@@ -155,6 +155,8 @@ MainWindow::MainWindow(
 
     connect(connectionSession, &ConnectionSession::stateChanged, this,
             &MainWindow::updateConnectionState);
+    connect(connectionSession, &ConnectionSession::sessionStatusChanged, this,
+            &MainWindow::updateSessionStatus);
 
 
     // 文件-退出
@@ -468,9 +470,7 @@ void MainWindow::updateConnectionState(ConnectionState state)
     case ConnectionState::Running:
         propertyValue = "running";
         title = "已连接";
-        detail = systemProxySession->isEnabled()
-            ? "VPN 通道与系统代理均已启用。"
-            : "VPN 通道运行中，可按需启用系统代理。";
+        detail = runningDetailText();
         break;
     case ConnectionState::Stopping:
         propertyValue = "stopping";
@@ -492,6 +492,11 @@ void MainWindow::updateConnectionState(ConnectionState state)
         title = "连接失败";
         detail = "请查看右侧日志，确认网络与账户配置。";
         break;
+    case ConnectionState::ReloginRequired:
+        propertyValue = "failed";
+        title = "需要重新登录";
+        detail = "会话已被服务器结束" + sessionReasonSuffix() + "，请重新登录。";
+        break;
     }
 
     ui->statusTitleLabel->setText(title);
@@ -508,6 +513,139 @@ void MainWindow::updateConnectionState(ConnectionState state)
         widget->style()->polish(widget);
         widget->update();
     }
+
+    updateTrayTooltip(title);
+}
+
+void MainWindow::updateSessionStatus()
+{
+    // The connection state has not changed - only what the core says about the
+    // session - so the status area and the tooltip are recomposed from both.
+    if (connectionSession != nullptr)
+    {
+        updateConnectionState(connectionSession->state());
+    }
+}
+
+QString MainWindow::runningDetailText() const
+{
+    if (connectionSession == nullptr)
+    {
+        return "VPN 通道运行中，可按需启用系统代理。";
+    }
+
+    switch (connectionSession->sessionStatus().state)
+    {
+    case SessionMaintenanceState::Restoring:
+        // The core is trying to get the session back; the user cannot do anything
+        // yet, and "connected" without a working session is exactly the state this
+        // no longer pretends to be.
+        return "会话续期失败，正在尝试恢复" + sessionReasonSuffix() + "。";
+    case SessionMaintenanceState::Offline:
+        return "会话已离线，正在等待重新建立。";
+    default:
+        break;
+    }
+
+    return systemProxySession->isEnabled()
+        ? "VPN 通道与系统代理均已启用。"
+        : "VPN 通道运行中，可按需启用系统代理。";
+}
+
+QString MainWindow::sessionStatusText() const
+{
+    if (connectionSession == nullptr)
+    {
+        return {};
+    }
+
+    const SessionStatus &status = connectionSession->sessionStatus();
+    QString text;
+    bool reasonExplains = false;
+    switch (status.state)
+    {
+    case SessionMaintenanceState::Online:
+        text = "在线";
+        break;
+    case SessionMaintenanceState::Renewing:
+        text = "正在续期";
+        break;
+    case SessionMaintenanceState::Restoring:
+        text = "正在尝试恢复";
+        reasonExplains = true;
+        break;
+    case SessionMaintenanceState::ReloginRequired:
+        text = "需要重新登录";
+        reasonExplains = true;
+        break;
+    case SessionMaintenanceState::Offline:
+        text = "离线";
+        reasonExplains = true;
+        break;
+    case SessionMaintenanceState::Unknown:
+        return {};
+    }
+
+    // The core's reason is what explains a problem; for "online" or a routine
+    // renewal it would only be noise the user cannot act on.
+    const QString reason = status.reason.trimmed();
+    if (reasonExplains && !reason.isEmpty())
+    {
+        return text + "（" + reason + "）";
+    }
+    return text;
+}
+
+QString MainWindow::sessionReasonSuffix() const
+{
+    if (connectionSession == nullptr)
+    {
+        return {};
+    }
+
+    // The core's own words first: in the measured case the code is 0 and only the
+    // reason ("session refresh was refused") says what happened.
+    const QString reason = connectionSession->sessionStatus().reason.trimmed();
+    if (!reason.isEmpty())
+    {
+        return "（原因：" + reason + "）";
+    }
+
+    const int code = connectionSession->reloginCode();
+    if (code > 0)
+    {
+        return "（核心返回码 code=" + QString::number(code) + "）";
+    }
+    return {};
+}
+
+void MainWindow::updateTrayTooltip(const QString &title)
+{
+    if (trayIcon == nullptr)
+    {
+        return;
+    }
+
+    QStringList lines{
+        QApplication::applicationName() + " — " + title
+    };
+
+    const QString session = sessionStatusText();
+    if (!session.isEmpty())
+    {
+        lines.append("会话：" + session);
+    }
+
+    if (connectionSession != nullptr && connectionSession->sessionStatus().hasKeepAlive)
+    {
+        const SessionStatus &status = connectionSession->sessionStatus();
+        lines.append(
+            "保活：" + status.keepAlive.summary
+            + "（" + status.keepAliveAt.toString("HH:mm:ss") + "）"
+        );
+    }
+
+    trayIcon->setToolTip(lines.join('\n'));
 }
 
 void MainWindow::updateProfileSummary()

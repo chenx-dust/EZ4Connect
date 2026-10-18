@@ -58,10 +58,34 @@ void ConnectionSessionState::recordError(ZJU_ERROR error)
     }
 }
 
+bool ConnectionSessionState::sessionExpired(int code)
+{
+    if (!desiredConnected
+        || (currentState != ConnectionState::Starting
+            && currentState != ConnectionState::Running))
+    {
+        return false;
+    }
+
+    // The portal's verdict replaces an earlier error: it is what the user has to
+    // act on, and the first-error rule above would hide it behind whatever was
+    // recorded before.
+    currentError = ZJU_ERROR::SESSION_EXPIRED;
+    currentReloginCode = code;
+    currentState = ConnectionState::ReloginRequired;
+    return true;
+}
+
+int ConnectionSessionState::reloginCode() const
+{
+    return currentReloginCode;
+}
+
 bool ConnectionSessionState::requestStop()
 {
     desiredConnected = false;
-    if (currentState == ConnectionState::Reconnecting)
+    if (currentState == ConnectionState::Reconnecting
+        || currentState == ConnectionState::ReloginRequired)
     {
         currentState = ConnectionState::Disconnected;
         return false;
@@ -76,6 +100,16 @@ bool ConnectionSessionState::requestStop()
 
 ProcessFinishAction ConnectionSessionState::processFinished()
 {
+    // A dead session is terminal: the process was stopped on purpose, the tunnel
+    // is gone, and only a login brings the session back. Reconnecting here is the
+    // 2.4-minute branch that repairs nothing, so the state stays where the UI can
+    // act on it.
+    if (currentState == ConnectionState::ReloginRequired)
+    {
+        desiredConnected = false;
+        return ProcessFinishAction::Complete;
+    }
+
     const bool connectionWasEstablished = currentState == ConnectionState::Running;
     if (desiredConnected
         && reconnectPolicy.enabled
@@ -110,5 +144,9 @@ void ConnectionSessionState::beginReconnect()
 
 bool ConnectionSessionState::isReconnectable(ZJU_ERROR error)
 {
+    // A session the portal ended is not a reconnect target: the caller offers a
+    // login instead (sessionExpired), because a silent replay of the stored
+    // credentials would rotate the device token and drop the account's other
+    // clients.
     return error == ZJU_ERROR::AUTH_EXPIRED || error == ZJU_ERROR::OTHER;
 }

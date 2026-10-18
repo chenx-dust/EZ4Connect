@@ -57,6 +57,16 @@ private:
 
     void updateConnectionState(ConnectionState state);
 
+    void updateSessionStatus();
+
+    void updateTrayTooltip(const QString &title);
+
+    QString runningDetailText() const;
+
+    QString sessionStatusText() const;
+
+    QString sessionReasonSuffix() const;
+
     void updateProfileSummary();
 
     void showNotification(

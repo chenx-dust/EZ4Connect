@@ -12,6 +12,9 @@ enum class ConnectionState
     Reconnecting,
     Interrupted,
     Failed,
+    // The portal ended the session and the core cannot bring it back on its own:
+    // nothing is running, and only a fresh login (a new process) recovers.
+    ReloginRequired,
 };
 
 struct ReconnectPolicy
@@ -38,6 +41,11 @@ public:
     bool requestStart(const ReconnectPolicy &policy);
     void connectionEstablished();
     void recordError(ZJU_ERROR error);
+    // The core reported that the portal ended the session: a terminal outcome,
+    // not a reconnect target. Returns false when there is no live session to end
+    // (nothing started, already stopping, or the user asked to disconnect).
+    bool sessionExpired(int code);
+    int reloginCode() const;
     bool requestStop();
     ProcessFinishAction processFinished();
     void beginReconnect();
@@ -47,6 +55,7 @@ private:
 
     ConnectionState currentState = ConnectionState::Disconnected;
     ZJU_ERROR currentError = ZJU_ERROR::NONE;
+    int currentReloginCode = 0;
     ReconnectPolicy reconnectPolicy;
     bool desiredConnected = false;
 };

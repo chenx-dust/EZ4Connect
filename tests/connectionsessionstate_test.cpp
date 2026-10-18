@@ -110,6 +110,55 @@ bool establishedConnectionEndsAsInterrupted()
     }
     return true;
 }
+
+bool expiredSessionWaitsForALoginInsteadOfReconnecting()
+{
+    ConnectionSessionState session;
+    session.requestStart({true, 1000});
+    session.connectionEstablished();
+    // An earlier error must not hide the portal's verdict: it is the one the user
+    // has to act on.
+    session.recordError(ZJU_ERROR::OTHER);
+
+    if (!session.sessionExpired(75500002)
+        || session.state() != ConnectionState::ReloginRequired
+        || session.isActive()
+        || session.error() != ZJU_ERROR::SESSION_EXPIRED
+        || session.reloginCode() != 75500002)
+    {
+        qCritical() << "expiredSessionWaitsForALoginInsteadOfReconnecting failed to report the session";
+        return false;
+    }
+
+    // Auto-reconnect is on, and it must still not fire: on this gateway a restart
+    // repairs nothing, so the state stays for the login dialog to answer.
+    if (session.processFinished() != ProcessFinishAction::Complete
+        || session.state() != ConnectionState::ReloginRequired
+        || session.wantsConnection())
+    {
+        qCritical() << "expiredSessionWaitsForALoginInsteadOfReconnecting reconnected a dead session";
+        return false;
+    }
+
+    return session.requestStart({true, 1000})
+        && session.state() == ConnectionState::Starting;
+}
+
+bool ignoresSessionExpiryAfterDisconnectRequest()
+{
+    ConnectionSessionState session;
+    session.requestStart({true, 1000});
+    session.connectionEstablished();
+    session.requestStop();
+
+    if (session.sessionExpired(75500002)
+        || session.state() != ConnectionState::Stopping)
+    {
+        qCritical() << "ignoresSessionExpiryAfterDisconnectRequest undid a disconnect";
+        return false;
+    }
+    return true;
+}
 }
 
 int main(int argc, char *argv[])
@@ -119,6 +168,8 @@ int main(int argc, char *argv[])
         && reconnectsOnlyEligibleFailures()
         && keepsFirstErrorAndCancelsPendingReconnect()
         && establishedConnectionEndsAsInterrupted()
+        && expiredSessionWaitsForALoginInsteadOfReconnecting()
+        && ignoresSessionExpiryAfterDisconnectRequest()
         ? 0
         : 1;
 }

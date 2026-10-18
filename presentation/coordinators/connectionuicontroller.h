@@ -66,6 +66,9 @@ private:
     SettingsProvider settingsProvider;
     ProfileIdProvider profileIdProvider;
     NotificationHandler notificationHandler;
+    // One warning per outage: the core reports every failed round, so this is what
+    // keeps a single outage from becoming a notification per minute.
+    bool keepAliveWarningRaised = false;
 };
 
 #endif // CONNECTIONUICONTROLLER_H

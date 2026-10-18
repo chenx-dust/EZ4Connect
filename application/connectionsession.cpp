@@ -21,6 +21,12 @@ ConnectionSession::ConnectionSession(CoreProcess *coreProcess, QObject *parent)
     {
         sessionState.recordError(error);
     });
+    connect(coreProcess, &CoreProcess::sessionRequiresRelogin,
+            this, &ConnectionSession::handleSessionRequiresRelogin);
+    connect(coreProcess, &CoreProcess::sessionStateReported,
+            this, &ConnectionSession::handleSessionStateReported);
+    connect(coreProcess, &CoreProcess::keepAliveReported,
+            this, &ConnectionSession::handleKeepAliveReported);
     connect(coreProcess, &CoreProcess::started, this, [this]()
     {
         emit stateChanged(sessionState.state());
@@ -113,8 +119,31 @@ bool ConnectionSession::isActive() const
     return sessionState.isActive();
 }
 
+int ConnectionSession::reloginCode() const
+{
+    return sessionState.reloginCode();
+}
+
+const SessionStatus &ConnectionSession::sessionStatus() const
+{
+    return currentSessionStatus;
+}
+
 void ConnectionSession::startCore()
 {
+    // Every process - the first one and each retry - reports its own session;
+    // nothing of the previous one is shown while the new one has not said
+    // anything yet. This is the single process-start point, so the reconnect path
+    // cannot keep a stale status.
+    const bool hadStatus =
+        currentSessionStatus.state != SessionMaintenanceState::Unknown
+        || currentSessionStatus.hasKeepAlive
+        || !currentSessionStatus.reason.isEmpty();
+    currentSessionStatus = SessionStatus{};
+    if (hadStatus)
+    {
+        emit sessionStatusChanged();
+    }
     sudoPasswordSubmitted = false;
     coreProcess->start(currentProfile);
 }
@@ -131,6 +160,55 @@ void ConnectionSession::handleCoreFinished()
 
     emit stateChanged(sessionState.state());
     emit finished(sessionState.error());
+}
+
+void ConnectionSession::handleSessionRequiresRelogin(int code)
+{
+    beginRelogin(code);
+}
+
+void ConnectionSession::handleSessionStateReported(const SessionStateLine &line)
+{
+    currentSessionStatus.state = line.state;
+    currentSessionStatus.reason = line.reason;
+    emit sessionStatusChanged();
+
+    // The state line is the core announcing what it learned; the "requires
+    // reauthentication" line that follows it is the same verdict in the shape a UI
+    // is told to grep, and a core may print either one alone.
+    if (line.state == SessionMaintenanceState::ReloginRequired)
+    {
+        beginRelogin(line.code);
+    }
+}
+
+void ConnectionSession::handleKeepAliveReported(const KeepAliveLine &line)
+{
+    currentSessionStatus.hasKeepAlive = true;
+    currentSessionStatus.keepAlive = line;
+    currentSessionStatus.keepAliveAt = QDateTime::currentDateTime();
+    emit sessionStatusChanged();
+    emit keepAliveReported(line);
+}
+
+void ConnectionSession::beginRelogin(int code)
+{
+    if (!sessionState.sessionExpired(code))
+    {
+        return;
+    }
+
+    emit stateChanged(sessionState.state());
+
+    // The core keeps running with a session that is already dead, and every
+    // request through it fails until a login happens. Stop it - that releases the
+    // tunnel and the system proxy - and let the caller offer a fresh login, which
+    // starts a new process. Never reconnect from here: on this gateway a restart
+    // repairs nothing and only wastes the time the user still has a login dialog
+    // to answer.
+    coreProcess->stop();
+
+    emit reloginRequired(code);
 }
 
 void ConnectionSession::handleSudoPasswordRequest()
