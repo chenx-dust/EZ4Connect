@@ -34,6 +34,10 @@ bool recognizesCoreProtocol()
         {"auth type/login domain combination not found", CoreOutputEvent::AuthNotAvailable},
         {"invalid SID", CoreOutputEvent::AuthExpired},
         {"l3-tunnel tunnel auth failed:", CoreOutputEvent::AuthExpired},
+        // The core's session ladder kept the process alive; this is the line that
+        // says a login is the only way back.
+        {"aTrust session requires reauthentication (code=75500002)",
+         CoreOutputEvent::SessionRequiresRelogin},
         {"client setup error", CoreOutputEvent::ClientFailed},
         {"panic: runtime error", CoreOutputEvent::CorePanic},
         {"ordinary core output", CoreOutputEvent::None},
@@ -94,6 +98,25 @@ bool extractsGraphCaptchaFileFromCoreOutput()
            ) == "C:\\Users\\alice\\graph_code.jpg"
         && CoreOutputParser::graphCaptchaFile("ordinary output").isEmpty();
 }
+
+bool extractsSessionReloginCodeAndNeverTreatsItAsAPrompt()
+{
+    const QByteArray reloginLine =
+        "2026/10/18 12:00:00 aTrust session requires reauthentication (code=75500002)";
+    if (CoreOutputParser::sessionReloginCode(QString::fromUtf8(reloginLine)) != 75500002
+        || CoreOutputParser::sessionReloginCode(
+               "aTrust session requires reauthentication"
+           ) != 0
+        || CoreOutputParser::sessionReloginCode("ordinary output") != 0)
+    {
+        qCritical() << "extractsSessionReloginCodeAndNeverTreatsItAsAPrompt failed on the code";
+        return false;
+    }
+
+    // The core is not waiting on stdin: answering this line would feed the login
+    // prompt's input to a process that asked for nothing.
+    return !CoreOutputParser::hasInteractivePrompt(reloginLine);
+}
 }
 
 int main(int argc, char *argv[])
@@ -103,6 +126,7 @@ int main(int argc, char *argv[])
                && preservesExistingFirstMatchPrecedence()
                && recognizesInteractivePromptsBeforeNewline()
                && extractsGraphCaptchaFileFromCoreOutput()
+               && extractsSessionReloginCodeAndNeverTreatsItAsAPrompt()
            ? 0
            : 1;
 }

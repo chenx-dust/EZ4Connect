@@ -38,6 +38,11 @@ public:
         emit connectionEstablished();
     }
 
+    void requireRelogin(int code)
+    {
+        emit sessionRequiresRelogin(code);
+    }
+
     void requestSudoPassword()
     {
         emit askSudoPass();
@@ -136,6 +141,72 @@ bool emptySudoPasswordStopsTheSession()
     return true;
 }
 
+bool sessionExpiryStopsTheCoreAndAsksForALogin()
+{
+    auto *coreProcess = new FakeCoreProcess();
+    ConnectionSession session(coreProcess);
+    ConnectionProfile profile;
+    int reloginCalls = 0;
+    int reloginCode = 0;
+    int reconnectCalls = 0;
+    int finishedCalls = 0;
+    ZJU_ERROR finishedError = ZJU_ERROR::NONE;
+    QObject::connect(
+        &session,
+        &ConnectionSession::reloginRequired,
+        [&](int code)
+        {
+            ++reloginCalls;
+            reloginCode = code;
+        }
+    );
+    QObject::connect(
+        &session,
+        &ConnectionSession::reconnectScheduled,
+        [&](int) { ++reconnectCalls; }
+    );
+    QObject::connect(
+        &session,
+        &ConnectionSession::finished,
+        [&](ZJU_ERROR error)
+        {
+            ++finishedCalls;
+            finishedError = error;
+        }
+    );
+
+    // Auto-reconnect is on: the dead session must still not take that branch.
+    if (!session.start(profile, {true, 1000}))
+    {
+        qCritical() << "failed to start session for the session expiry case";
+        return false;
+    }
+    coreProcess->establishConnection();
+    coreProcess->requireRelogin(75500002);
+
+    if (reloginCalls != 1
+        || reloginCode != 75500002
+        || reconnectCalls != 0
+        || coreProcess->stopCalls != 1
+        || session.state() != ConnectionState::ReloginRequired
+        || session.isActive())
+    {
+        qCritical() << "session expiry did not stop the core and ask for a login";
+        return false;
+    }
+
+    coreProcess->complete();
+    if (finishedCalls != 1
+        || finishedError != ZJU_ERROR::SESSION_EXPIRED
+        || session.state() != ConnectionState::ReloginRequired
+        || session.reloginCode() != 75500002)
+    {
+        qCritical() << "session expiry was not reported as a terminal outcome";
+        return false;
+    }
+    return true;
+}
+
 bool cancelledInteractiveInputSubmitsNewlineBeforeStopping()
 {
     auto *coreProcess = new FakeCoreProcess();
@@ -158,6 +229,57 @@ bool cancelledInteractiveInputSubmitsNewlineBeforeStopping()
     }
     return true;
 }
+
+bool schedulesTheLadderRungItReports()
+{
+    auto *coreProcess = new FakeCoreProcess();
+    ConnectionSession session(coreProcess);
+    ConnectionProfile profile;
+    int scheduleCalls = 0;
+    int scheduledDelay = 0;
+    QObject::connect(
+        &session,
+        &ConnectionSession::reconnectScheduled,
+        [&](int delayMs)
+        {
+            ++scheduleCalls;
+            scheduledDelay = delayMs;
+        }
+    );
+
+    if (!session.start(profile, {true, 1000}))
+    {
+        qCritical() << "failed to start session for the ladder case";
+        return false;
+    }
+    coreProcess->establishConnection();
+    emit coreProcess->error(ZJU_ERROR::CLIENT_FAILED);
+    coreProcess->complete();
+
+    // The delay the caller is told to wait is the rung the state machine reports,
+    // and it is the first one: the timer must not run ahead of the counter the UI
+    // shows.
+    if (scheduleCalls != 1
+        || scheduledDelay != 1000
+        || session.state() != ConnectionState::Reconnecting
+        || session.reconnectAttempt() != 1
+        || session.reconnectAttemptLimit() != 5
+        || session.reconnectDelayMs() != scheduledDelay)
+    {
+        qCritical() << "schedulesTheLadderRungItReports did not schedule the reported rung";
+        return false;
+    }
+
+    // A disconnect while the retry waits cancels it: no attempt survives a stop.
+    session.stop();
+    if (session.state() != ConnectionState::Disconnected
+        || session.isActive())
+    {
+        qCritical() << "schedulesTheLadderRungItReports left a pending retry behind";
+        return false;
+    }
+    return true;
+}
 }
 
 int main(int argc, char *argv[])
@@ -166,5 +288,7 @@ int main(int argc, char *argv[])
     return delegatesProcessLifecycleThroughPort()
         && distinguishesInterruptedConnectionFromStartupFailure()
         && emptySudoPasswordStopsTheSession()
+        && sessionExpiryStopsTheCoreAndAsksForALogin()
+        && schedulesTheLadderRungItReports()
         && cancelledInteractiveInputSubmitsNewlineBeforeStopping() ? 0 : 1;
 }

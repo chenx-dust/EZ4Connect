@@ -57,6 +57,8 @@ private:
 
     void updateConnectionState(ConnectionState state);
 
+    QString reconnectDetailText() const;
+
     void updateProfileSummary();
 
     void showNotification(

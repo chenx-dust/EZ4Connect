@@ -25,6 +25,7 @@ enum class CoreOutputEvent
     InteractiveError,
     AuthNotAvailable,
     AuthExpired,
+    SessionRequiresRelogin,
     ClientFailed,
     CorePanic,
 };
@@ -37,6 +38,10 @@ public:
     static bool hasInteractivePrompt(const QByteArray &output);
 
     static QString graphCaptchaFile(const QString &output);
+
+    // The portal's code from the "requires reauthentication" line, or 0 when the
+    // line carries none.
+    static int sessionReloginCode(const QString &output);
 };
 
 #endif // COREOUTPUTPARSER_H
