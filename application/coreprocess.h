@@ -24,6 +24,9 @@ public:
 signals:
     void error(ZJU_ERROR error);
     void outputRead(const QString &output);
+    // The core says the portal ended the session and no recovery is left inside
+    // the running process; `code` is the portal's own code when it printed one.
+    void sessionRequiresRelogin(int code);
     void graphCaptcha(const QString &graphFile);
     void smsCode(bool showSkipSecondaryAuthOption);
     void totpCode();

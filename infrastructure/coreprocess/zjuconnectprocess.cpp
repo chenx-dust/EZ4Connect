@@ -140,6 +140,9 @@ void ZjuConnectProcess::processOutputLines(const QList<QByteArray> &lines)
         case CoreOutputEvent::AuthExpired:
             emit error(ZJU_ERROR::AUTH_EXPIRED);
             break;
+        case CoreOutputEvent::SessionRequiresRelogin:
+            emit sessionRequiresRelogin(CoreOutputParser::sessionReloginCode(line));
+            break;
         case CoreOutputEvent::ClientFailed:
             emit error(ZJU_ERROR::CLIENT_FAILED);
             break;

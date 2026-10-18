@@ -23,6 +23,8 @@ public:
 
     ConnectionState state() const;
     bool isActive() const;
+    // The portal's code from the last "requires reauthentication" line, or 0.
+    int reloginCode() const;
 
 signals:
     void stateChanged(ConnectionState state);
@@ -36,11 +38,13 @@ signals:
     void askSudoPass();
     void savedSudoPasswordRejected();
     void reconnectScheduled(int delayMs);
+    void reloginRequired(int code);
     void finished(ZJU_ERROR error);
 
 private:
     void startCore();
     void handleCoreFinished();
+    void handleSessionRequiresRelogin(int code);
     void handleSudoPasswordRequest();
 
     CoreProcess *coreProcess;

@@ -117,12 +117,45 @@ ConnectionUiController::ConnectionUiController(
     );
     connect(
         connectionSession,
+        &ConnectionSession::reloginRequired,
+        this,
+        [this](int code)
+        {
+            // The core could not bring the session back on its own, so a login is
+            // the only way forward: ask for one instead of reconnecting silently.
+            qWarning().noquote() << "会话已被服务器结束，需要重新登录";
+            QString message = "会话已被服务器结束，需要重新登录。";
+            if (code > 0)
+            {
+                message += "\n核心返回码：code=" + QString::number(code);
+            }
+            this->notificationHandler(
+                "VPN",
+                message,
+                QSystemTrayIcon::MessageIcon::Warning
+            );
+
+            const QString username =
+                settings()->value("Credential/Username", "").toString();
+            const QString password = QByteArray::fromBase64(
+                settings()->value("Credential/Password", "").toString().toUtf8()
+            );
+            this->authenticationDialogs->requestLogin(username, password);
+        }
+    );
+    connect(
+        connectionSession,
         &ConnectionSession::finished,
         this,
         [this](ZJU_ERROR error)
         {
             qInfo().noquote() << "VPN 断开！";
-            if (error != ZJU_ERROR::NONE)
+            const ConnectionState state = this->connectionSession->state();
+            // A session the portal ended already has its own response - the
+            // re-login dialog - so it is neither an unexplained disconnect nor a
+            // modal error box on top of that dialog.
+            const bool reloginRequired = state == ConnectionState::ReloginRequired;
+            if (error != ZJU_ERROR::NONE && !reloginRequired)
             {
                 this->notificationHandler(
                     "VPN",
@@ -133,7 +166,7 @@ ConnectionUiController::ConnectionUiController(
             this->connectButton->setText("连接服务器");
             this->trayConnectAction->setText("连接服务器");
             this->proxyButton->hide();
-            if (this->connectionSession->state() != ConnectionState::Interrupted)
+            if (state != ConnectionState::Interrupted && !reloginRequired)
             {
                 showConnectionError(error);
             }
@@ -401,6 +434,9 @@ void ConnectionUiController::showConnectionError(ZJU_ERROR error)
         break;
     case ZJU_ERROR::AUTH_EXPIRED:
         message = "认证已过期！\n请重新登录。";
+        break;
+    case ZJU_ERROR::SESSION_EXPIRED:
+        message = "会话已失效！\n服务器已结束当前会话，请在登录窗口中重新登录。";
         break;
     case ZJU_ERROR::OTHER:
         message = "其它错误！\n未知原因，可将日志反馈给开发者以便调查。";

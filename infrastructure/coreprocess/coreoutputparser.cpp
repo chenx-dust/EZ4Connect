@@ -1,5 +1,7 @@
 #include "coreoutputparser.h"
 
+#include <QRegularExpression>
+
 CoreOutputEvent CoreOutputParser::parse(const QString &output)
 {
     if (output.contains("SUDO_ASK_PASS"))
@@ -76,6 +78,14 @@ CoreOutputEvent CoreOutputParser::parse(const QString &output)
     {
         return CoreOutputEvent::AuthExpired;
     }
+    // The core keeps running when the portal has ended the session, so this line
+    // is the ladder's final verdict: "a login is the only way back". The
+    // tunnel-layer answers above are not that - the core still tries to recover
+    // from them, and a renewal can succeed.
+    if (output.contains("aTrust session requires reauthentication"))
+    {
+        return CoreOutputEvent::SessionRequiresRelogin;
+    }
     if (output.contains("client setup error"))
     {
         return CoreOutputEvent::ClientFailed;
@@ -97,6 +107,18 @@ QString CoreOutputParser::graphCaptchaFile(const QString &output)
     }
 
     return output.mid(markerIndex + prefix.size()).trimmed();
+}
+
+int CoreOutputParser::sessionReloginCode(const QString &output)
+{
+    // The line is "aTrust session requires reauthentication (code=75500002)".
+    static const QRegularExpression codePattern(QStringLiteral("\\(code=([0-9]+)\\)"));
+    const QRegularExpressionMatch match = codePattern.match(output);
+    if (!match.hasMatch())
+    {
+        return 0;
+    }
+    return match.captured(1).toInt();
 }
 
 bool CoreOutputParser::hasInteractivePrompt(const QByteArray &output)

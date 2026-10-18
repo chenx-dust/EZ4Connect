@@ -38,6 +38,11 @@ public:
         emit connectionEstablished();
     }
 
+    void requireRelogin(int code)
+    {
+        emit sessionRequiresRelogin(code);
+    }
+
     void requestSudoPassword()
     {
         emit askSudoPass();
@@ -136,6 +141,72 @@ bool emptySudoPasswordStopsTheSession()
     return true;
 }
 
+bool sessionExpiryStopsTheCoreAndAsksForALogin()
+{
+    auto *coreProcess = new FakeCoreProcess();
+    ConnectionSession session(coreProcess);
+    ConnectionProfile profile;
+    int reloginCalls = 0;
+    int reloginCode = 0;
+    int reconnectCalls = 0;
+    int finishedCalls = 0;
+    ZJU_ERROR finishedError = ZJU_ERROR::NONE;
+    QObject::connect(
+        &session,
+        &ConnectionSession::reloginRequired,
+        [&](int code)
+        {
+            ++reloginCalls;
+            reloginCode = code;
+        }
+    );
+    QObject::connect(
+        &session,
+        &ConnectionSession::reconnectScheduled,
+        [&](int) { ++reconnectCalls; }
+    );
+    QObject::connect(
+        &session,
+        &ConnectionSession::finished,
+        [&](ZJU_ERROR error)
+        {
+            ++finishedCalls;
+            finishedError = error;
+        }
+    );
+
+    // Auto-reconnect is on: the dead session must still not take that branch.
+    if (!session.start(profile, {true, 1000}))
+    {
+        qCritical() << "failed to start session for the session expiry case";
+        return false;
+    }
+    coreProcess->establishConnection();
+    coreProcess->requireRelogin(75500002);
+
+    if (reloginCalls != 1
+        || reloginCode != 75500002
+        || reconnectCalls != 0
+        || coreProcess->stopCalls != 1
+        || session.state() != ConnectionState::ReloginRequired
+        || session.isActive())
+    {
+        qCritical() << "session expiry did not stop the core and ask for a login";
+        return false;
+    }
+
+    coreProcess->complete();
+    if (finishedCalls != 1
+        || finishedError != ZJU_ERROR::SESSION_EXPIRED
+        || session.state() != ConnectionState::ReloginRequired
+        || session.reloginCode() != 75500002)
+    {
+        qCritical() << "session expiry was not reported as a terminal outcome";
+        return false;
+    }
+    return true;
+}
+
 bool cancelledInteractiveInputSubmitsNewlineBeforeStopping()
 {
     auto *coreProcess = new FakeCoreProcess();
@@ -166,5 +237,6 @@ int main(int argc, char *argv[])
     return delegatesProcessLifecycleThroughPort()
         && distinguishesInterruptedConnectionFromStartupFailure()
         && emptySudoPasswordStopsTheSession()
+        && sessionExpiryStopsTheCoreAndAsksForALogin()
         && cancelledInteractiveInputSubmitsNewlineBeforeStopping() ? 0 : 1;
 }

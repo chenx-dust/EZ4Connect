@@ -21,6 +21,8 @@ ConnectionSession::ConnectionSession(CoreProcess *coreProcess, QObject *parent)
     {
         sessionState.recordError(error);
     });
+    connect(coreProcess, &CoreProcess::sessionRequiresRelogin,
+            this, &ConnectionSession::handleSessionRequiresRelogin);
     connect(coreProcess, &CoreProcess::started, this, [this]()
     {
         emit stateChanged(sessionState.state());
@@ -113,6 +115,11 @@ bool ConnectionSession::isActive() const
     return sessionState.isActive();
 }
 
+int ConnectionSession::reloginCode() const
+{
+    return sessionState.reloginCode();
+}
+
 void ConnectionSession::startCore()
 {
     sudoPasswordSubmitted = false;
@@ -131,6 +138,26 @@ void ConnectionSession::handleCoreFinished()
 
     emit stateChanged(sessionState.state());
     emit finished(sessionState.error());
+}
+
+void ConnectionSession::handleSessionRequiresRelogin(int code)
+{
+    if (!sessionState.sessionExpired(code))
+    {
+        return;
+    }
+
+    emit stateChanged(sessionState.state());
+
+    // The core keeps running with a session that is already dead, and every
+    // request through it fails until a login happens. Stop it - that releases the
+    // tunnel and the system proxy - and let the caller offer a fresh login, which
+    // starts a new process. Never reconnect from here: on this gateway a restart
+    // repairs nothing and only wastes the time the user still has a login dialog
+    // to answer.
+    coreProcess->stop();
+
+    emit reloginRequired(code);
 }
 
 void ConnectionSession::handleSudoPasswordRequest()

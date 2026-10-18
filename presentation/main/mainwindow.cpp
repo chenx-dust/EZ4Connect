@@ -492,6 +492,15 @@ void MainWindow::updateConnectionState(ConnectionState state)
         title = "连接失败";
         detail = "请查看右侧日志，确认网络与账户配置。";
         break;
+    case ConnectionState::ReloginRequired:
+        propertyValue = "failed";
+        title = "需要重新登录";
+        detail = connectionSession != nullptr && connectionSession->reloginCode() > 0
+            ? "会话已被服务器结束（核心返回码 code="
+                  + QString::number(connectionSession->reloginCode())
+                  + "），请重新登录。"
+            : "会话已被服务器结束，请重新登录。";
+        break;
     }
 
     ui->statusTitleLabel->setText(title);
