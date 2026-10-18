@@ -9,6 +9,7 @@
 #include "application/applicationlogger.h"
 #include "application/applicationconstants.h"
 #include "infrastructure/logging/applicationlogfile.h"
+#include "infrastructure/platform/terminationwatcher.h"
 #include "infrastructure/storage/applicationpaths.h"
 #include "presentation/main/mainwindow.h"
 
@@ -54,6 +55,22 @@ int main(int argc, char *argv[])
     MainWindow mainWindow(&applicationLogger, &applicationLogFile);
 
     QObject::connect(&app, &SingleApplication::aboutToQuit, &mainWindow, &MainWindow::cleanUpWhenQuit);
+
+    // A session or a service manager stops its programs with SIGTERM. Without this
+    // the program would die where it stands, leaving the tunnel's child process
+    // running and the system proxy set; going through the ordinary quit instead runs
+    // the shutdown the tray's exit already performs.
+    TerminationWatcher terminationWatcher;
+    QObject::connect(
+        &terminationWatcher,
+        &TerminationWatcher::requested,
+        &app,
+        [&app]()
+        {
+            qInfo().noquote() << "收到终止信号，正在退出";
+            app.quit();
+        }
+    );
 
     return QApplication::exec();
 }

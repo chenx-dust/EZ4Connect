@@ -60,6 +60,7 @@ set(SOURCE_FILES
     infrastructure/storage/applicationpaths.cpp
     infrastructure/update/updatechecker.cpp
     infrastructure/platform/platformsystemproxybackend.cpp
+    infrastructure/platform/terminationwatcher.cpp
     infrastructure/platform/systemproxyfunctions.cpp
     infrastructure/coreprocess/zjuconnectprocess.cpp
     presentation/presentationhelpers.cpp
@@ -217,6 +218,14 @@ if(BUILD_TESTING)
     target_include_directories(updatechecker_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_libraries(updatechecker_test Qt::Core Qt::Gui Qt::Widgets Qt::Network Qt::Core5Compat)
     add_test(NAME updatechecker_test COMMAND updatechecker_test)
+
+    add_executable(terminationwatcher_test
+        tests/terminationwatcher_test.cpp
+        infrastructure/platform/terminationwatcher.cpp
+    )
+    target_include_directories(terminationwatcher_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_libraries(terminationwatcher_test Qt::Core)
+    add_test(NAME terminationwatcher_test COMMAND terminationwatcher_test)
 
     add_executable(settingsmigrator_test
         tests/settingsmigrator_test.cpp
