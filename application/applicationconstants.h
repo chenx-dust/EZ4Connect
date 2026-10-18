@@ -8,7 +8,7 @@ namespace ApplicationConstants
 const inline QString RepositoryName("chenx-dust/EZ4Connect");
 const inline QString CoreRepositoryName("Mythologyli/zju-connect");
 const inline QString ApplicationName("EZ4Connect");
-constexpr inline int ConfigVersion = 8;
+constexpr inline int ConfigVersion = 9;
 }
 
 #endif // APPLICATIONCONSTANTS_H

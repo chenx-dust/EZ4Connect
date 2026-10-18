@@ -56,11 +56,53 @@ struct TunnelOptions
     QString udpPortForwarding;
 };
 
+// How the core is told to keep a session alive. Some gateways drop a session
+// that sees no traffic, so the default is to let the core keep it busy.
+enum class KeepAliveMode
+{
+    // Leave the target to the core, which picks one the tunnel carries.
+    Automatic,
+    // Probe the address the user named.
+    Url,
+    // Pass -disable-keep-alive.
+    Off
+};
+
+inline QString keepAliveModeToString(KeepAliveMode mode)
+{
+    switch (mode)
+    {
+    case KeepAliveMode::Url:
+        return QStringLiteral("url");
+    case KeepAliveMode::Off:
+        return QStringLiteral("off");
+    case KeepAliveMode::Automatic:
+        break;
+    }
+    return QStringLiteral("auto");
+}
+
+// Unknown values fall back to the default instead of failing, so a settings
+// file written by another version still loads.
+inline KeepAliveMode keepAliveModeFromString(const QString &value)
+{
+    const QString mode = value.trimmed().toLower();
+    if (mode == QStringLiteral("url"))
+    {
+        return KeepAliveMode::Url;
+    }
+    if (mode == QStringLiteral("off"))
+    {
+        return KeepAliveMode::Off;
+    }
+    return KeepAliveMode::Automatic;
+}
+
 struct ConnectionBehavior
 {
     int updateBestNodesInterval = 300;
     bool disableMultiLine = false;
-    bool disableKeepAlive = false;
+    KeepAliveMode keepAliveMode = KeepAliveMode::Automatic;
     QString keepAliveUrl;
     QString bindInterface;
     bool autoDetectInterface = false;

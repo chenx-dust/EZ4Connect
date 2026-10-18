@@ -86,8 +86,8 @@ bool buildsCompleteCommandInCompatibleOrder()
                      true, "example.org"};
     profile.tunnel = {true, true, true, true, true, "127.0.0.1:80/10.0.0.1:80",
                       "127.0.0.1:53/10.0.0.1:53"};
-    profile.behavior = {30, true, true, "https://keepalive", "en0", true, true, true,
-                        true};
+    profile.behavior = {30, true, KeepAliveMode::Url, "https://keepalive", "en0", true, true,
+                        true, true};
     profile.debug = {true, true, true};
     profile.extraArguments = "-foo bar";
 
@@ -113,7 +113,6 @@ bool buildsCompleteCommandInCompatibleOrder()
         "-secondary-dns-server", "10.0.0.2",
         "-local-dns-server", "223.5.5.5:53",
         "-dns-server-bind", "127.0.0.1:5353",
-        "-disable-keep-alive",
         "-keep-alive-url", "https://keepalive",
         "-bind-interface", "en0",
         "-auto-detect-interface",
@@ -306,6 +305,50 @@ bool quotesLoggableArgumentsWithoutChangingArguments()
     return true;
 }
 
+bool keepsAutomaticKeepAliveTargetOutOfCommand()
+{
+    ConnectionProfile profile;
+    profile.endpoint.protocol = "atrust";
+    profile.behavior.keepAliveMode = KeepAliveMode::Automatic;
+    profile.behavior.keepAliveUrl = "http://keepalive.example/";
+
+    const CoreCommand command = CoreCommandBuilder::build(profile);
+    return expectEqual(
+        command.arguments,
+        {"-protocol", "atrust"},
+        "keepsAutomaticKeepAliveTargetOutOfCommand"
+    );
+}
+
+bool passesDisableKeepAliveWhenTurnedOff()
+{
+    ConnectionProfile profile;
+    profile.endpoint.protocol = "atrust";
+    profile.behavior.keepAliveMode = KeepAliveMode::Off;
+    profile.behavior.keepAliveUrl = "http://keepalive.example/";
+
+    const CoreCommand command = CoreCommandBuilder::build(profile);
+    return expectEqual(
+        command.arguments,
+        {"-protocol", "atrust", "-disable-keep-alive"},
+        "passesDisableKeepAliveWhenTurnedOff"
+    );
+}
+
+bool omitsKeepAliveTargetWhenUrlModeHasNoTarget()
+{
+    ConnectionProfile profile;
+    profile.endpoint.protocol = "atrust";
+    profile.behavior.keepAliveMode = KeepAliveMode::Url;
+
+    const CoreCommand command = CoreCommandBuilder::build(profile);
+    return expectEqual(
+        command.arguments,
+        {"-protocol", "atrust"},
+        "omitsKeepAliveTargetWhenUrlModeHasNoTarget"
+    );
+}
+
 bool omitsDisabledDebugArtifacts()
 {
     ConnectionProfile profile;
@@ -335,6 +378,9 @@ int main(int argc, char *argv[])
         && passesCredentialsAsArgumentsWhenEnabled()
         && clearsManagedVariablesEvenWhenCredentialsAreEmpty()
         && quotesLoggableArgumentsWithoutChangingArguments()
+        && keepsAutomaticKeepAliveTargetOutOfCommand()
+        && passesDisableKeepAliveWhenTurnedOff()
+        && omitsKeepAliveTargetWhenUrlModeHasNoTarget()
         && omitsDisabledDebugArtifacts();
     return passed ? 0 : 1;
 }

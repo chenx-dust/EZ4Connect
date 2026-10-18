@@ -41,7 +41,7 @@ void DefaultSettings::reset(QSettings &settings)
     settings.setValue("ZJUConnect/PhoneNumber", "");
 
     settings.setValue("ZJUConnect/MultiLine", false);
-    settings.setValue("ZJUConnect/KeepAlive", false);
+    settings.setValue("ZJUConnect/KeepAliveMode", "auto");
     settings.setValue("ZJUConnect/KeepAliveURL", "");
     settings.setValue("ZJUConnect/BindInterface", "");
     settings.setValue("ZJUConnect/OutsideAccess", false);

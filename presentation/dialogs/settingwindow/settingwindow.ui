@@ -858,13 +858,6 @@
        </item>
        <item row="16" column="0" colspan="4">
         <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="1">
-          <widget class="QCheckBox" name="keepAliveCheckBox">
-           <property name="text">
-            <string>定时保活</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <widget class="QCheckBox" name="disableServerConfigCheckBox">
            <property name="text">
@@ -879,7 +872,7 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
+         <item row="0" column="1">
           <widget class="QCheckBox" name="outsideAccessCheckBox">
            <property name="text">
             <string>允许外部访问</string>
@@ -950,7 +943,7 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="2">
+         <item row="0" column="2">
           <widget class="QCheckBox" name="autoDetectInterfaceCheckBox">
            <property name="toolTip">
             <string>自动检测并绑定 VPN 底层网络接口</string>
@@ -1016,17 +1009,58 @@
          </property>
         </widget>
        </item>
-       <item row="11" column="1" colspan="3">
+       <item row="11" column="1">
         <widget class="QLineEdit" name="keepAliveUrlLineEdit">
          <property name="placeholderText">
-          <string>用于定时保活的 URL，留空为 DNS 保活</string>
+          <string>http://intranet.example/（需为 VPN 内可访问的明文 HTTP 地址）</string>
          </property>
+        </widget>
+       </item>
+       <item row="11" column="2" colspan="2">
+        <widget class="QComboBox" name="keepAliveModeComboBox">
+         <property name="toolTip">
+          <string>部分网关会断开一段时间内没有流量的会话；保持在线会定时通过隧道访问应用地址</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>自动保活（推荐）</string>
+          </property>
+          <property name="userData">
+           <string>auto</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>指定地址保活</string>
+          </property>
+          <property name="userData">
+           <string>url</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>关闭保活</string>
+          </property>
+          <property name="userData">
+           <string>off</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item row="11" column="0">
         <widget class="QLabel" name="zjuConnectTabLabel6_4">
          <property name="text">
-          <string>定时保活 URL</string>
+          <string>保活目标地址</string>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="1" colspan="3">
+        <widget class="QLabel" name="keepAliveHintLabel">
+         <property name="text">
+          <string>建议保持“自动保活”：核心会从隧道路由中挑选一个应用地址定时访问。指定地址时请使用明文 http:// 地址——https:// 只会建立 CONNECT，不产生应用流量，因此不能阻止会话超时。</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -1158,8 +1192,8 @@
   <tabstop>socks5PortSpinBox</tabstop>
   <tabstop>httpPortSpinBox</tabstop>
   <tabstop>multiLineCheckBox</tabstop>
-  <tabstop>keepAliveCheckBox</tabstop>
   <tabstop>keepAliveUrlLineEdit</tabstop>
+  <tabstop>keepAliveModeComboBox</tabstop>
   <tabstop>bindInterfaceLineEdit</tabstop>
   <tabstop>outsideAccessCheckBox</tabstop>
   <tabstop>portForwardingPushButton</tabstop>

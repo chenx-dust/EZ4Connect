@@ -181,11 +181,17 @@ CoreCommand CoreCommandBuilder::build(const ConnectionProfile &profile, const Co
     appendOption(arguments, "-local-dns-server", profile.dns.localDnsServer);
     appendOption(arguments, "-dns-server-bind", profile.dns.dnsServerBind);
 
-    if (profile.behavior.disableKeepAlive)
+    switch (profile.behavior.keepAliveMode)
     {
+    case KeepAliveMode::Off:
         arguments << "-disable-keep-alive";
+        break;
+    case KeepAliveMode::Url:
+        appendOption(arguments, "-keep-alive-url", profile.behavior.keepAliveUrl);
+        break;
+    case KeepAliveMode::Automatic:
+        break;
     }
-    appendOption(arguments, "-keep-alive-url", profile.behavior.keepAliveUrl);
     appendOption(arguments, "-bind-interface", profile.behavior.bindInterface);
     if (profile.behavior.autoDetectInterface)
     {

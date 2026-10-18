@@ -9,6 +9,7 @@
 #include "ui_settingwindow.h"
 #include "application/applicationconstants.h"
 #include "application/defaultsettings.h"
+#include "core/connectionprofile.h"
 #include "infrastructure/platform/autostart.h"
 #include "infrastructure/storage/applicationpaths.h"
 #include "presentation/presentationhelpers.h"
@@ -25,6 +26,19 @@ SettingWindow::SettingWindow(QWidget *parent, QSettings *inputSettings, const QS
 
     setWindowModality(Qt::WindowModal);
     setAttribute(Qt::WA_DeleteOnClose);
+
+    // settingwindow.ui lists the keep-alive modes in this order; the item data
+    // is the value stored in the settings file, so nothing depends on the index.
+    ui->keepAliveModeComboBox->setItemData(
+        0,
+        keepAliveModeToString(KeepAliveMode::Automatic)
+    );
+    ui->keepAliveModeComboBox->setItemData(1, keepAliveModeToString(KeepAliveMode::Url));
+    ui->keepAliveModeComboBox->setItemData(2, keepAliveModeToString(KeepAliveMode::Off));
+    connect(ui->keepAliveModeComboBox, &QComboBox::currentIndexChanged, this, [this]()
+    {
+        updateKeepAliveTargetState();
+    });
 
     loadSettings();
 
@@ -271,8 +285,13 @@ void SettingWindow::loadSettings()
     ui->phoneNumberLineEdit->setText(settings->value("ZJUConnect/PhoneNumber").toString());
 
     ui->multiLineCheckBox->setChecked(settings->value("ZJUConnect/MultiLine").toBool());
-    ui->keepAliveCheckBox->setChecked(settings->value("ZJUConnect/KeepAlive").toBool());
+    const QString keepAliveMode = keepAliveModeToString(
+        keepAliveModeFromString(settings->value("ZJUConnect/KeepAliveMode").toString())
+    );
+    const int keepAliveModeIndex = ui->keepAliveModeComboBox->findData(keepAliveMode);
+    ui->keepAliveModeComboBox->setCurrentIndex(keepAliveModeIndex < 0 ? 0 : keepAliveModeIndex);
     ui->keepAliveUrlLineEdit->setText(settings->value("ZJUConnect/KeepAliveURL", "").toString());
+    updateKeepAliveTargetState();
     ui->bindInterfaceLineEdit->setText(settings->value("ZJUConnect/BindInterface", "").toString());
     ui->outsideAccessCheckBox->setChecked(settings->value("ZJUConnect/OutsideAccess").toBool());
 
@@ -380,7 +399,24 @@ void SettingWindow::applySettings()
     settings->setValue("ZJUConnect/PhoneNumber", ui->phoneNumberLineEdit->text());
 
     settings->setValue("ZJUConnect/MultiLine", ui->multiLineCheckBox->isChecked());
-    settings->setValue("ZJUConnect/KeepAlive", ui->keepAliveCheckBox->isChecked());
+    if (ui->keepAliveModeComboBox->currentData().toString()
+            == keepAliveModeToString(KeepAliveMode::Url)
+        && ui->keepAliveUrlLineEdit->text().trimmed().startsWith(
+            QStringLiteral("https://"),
+            Qt::CaseInsensitive
+        ))
+    {
+        QMessageBox::warning(
+            this,
+            "保活目标地址",
+            "https:// 目标只会建立 CONNECT，不产生应用流量，可能无法阻止会话超时。\n"
+            "建议填写 VPN 内可访问的明文 http:// 地址。"
+        );
+    }
+    settings->setValue(
+        "ZJUConnect/KeepAliveMode",
+        ui->keepAliveModeComboBox->currentData().toString()
+    );
     settings->setValue("ZJUConnect/KeepAliveURL", ui->keepAliveUrlLineEdit->text().trimmed());
     settings->setValue("ZJUConnect/BindInterface", ui->bindInterfaceLineEdit->text().trimmed());
     settings->setValue("ZJUConnect/OutsideAccess", ui->outsideAccessCheckBox->isChecked());
@@ -415,6 +451,15 @@ void SettingWindow::applySettings()
     );
 
     settings->sync();
+}
+
+void SettingWindow::updateKeepAliveTargetState()
+{
+    const bool usesConfiguredTarget =
+        ui->keepAliveModeComboBox->currentData().toString()
+        == keepAliveModeToString(KeepAliveMode::Url);
+    ui->keepAliveUrlLineEdit->setEnabled(usesConfiguredTarget);
+    ui->zjuConnectTabLabel6_4->setEnabled(usesConfiguredTarget);
 }
 
 bool SettingWindow::isAuthSettingChanged()

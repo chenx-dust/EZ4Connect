@@ -24,6 +24,7 @@ public:
 private:
     void loadSettings();
     void applySettings();
+    void updateKeepAliveTargetState();
     bool isAuthSettingChanged();
     bool shouldCheckCredential();
 

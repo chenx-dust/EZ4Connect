@@ -83,7 +83,7 @@ ConnectionProfile SettingsProfileLoader::load(
     profile.behavior = {
         settings.value("ZJUConnect/UpdateBestNodesInterval", 300).toInt(),
         !settings.value("ZJUConnect/MultiLine").toBool(),
-        !settings.value("ZJUConnect/KeepAlive").toBool(),
+        keepAliveModeFromString(settings.value("ZJUConnect/KeepAliveMode").toString()),
         settings.value("ZJUConnect/KeepAliveURL", "").toString(),
         settings.value("ZJUConnect/BindInterface", "").toString(),
         settings.value("ZJUConnect/AutoDetectInterface", false).toBool(),

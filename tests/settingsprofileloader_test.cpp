@@ -55,7 +55,7 @@ bool loadsSettingsIntoTypedProfile()
     settings.setValue("ZJUConnect/UpdateBestNodesInterval", 30);
     settings.setValue("ZJUConnect/CredentialsAsArguments", true);
     settings.setValue("ZJUConnect/MultiLine", false);
-    settings.setValue("ZJUConnect/KeepAlive", false);
+    settings.setValue("ZJUConnect/KeepAliveMode", "url");
     settings.setValue("ZJUConnect/KeepAliveURL", "https://keepalive");
     settings.setValue("ZJUConnect/BindInterface", "en0");
     settings.setValue("ZJUConnect/AutoDetectInterface", true);
@@ -107,7 +107,7 @@ bool loadsSettingsIntoTypedProfile()
         && profile.tunnel.udpPortForwarding == "udp-forward"
         && profile.behavior.updateBestNodesInterval == 30
         && profile.behavior.disableMultiLine
-        && profile.behavior.disableKeepAlive
+        && profile.behavior.keepAliveMode == KeepAliveMode::Url
         && profile.behavior.keepAliveUrl == "https://keepalive"
         && profile.behavior.bindInterface == "en0"
         && profile.behavior.autoDetectInterface
@@ -136,7 +136,7 @@ bool usesCompatibleDefaults()
         profile.behavior.updateBestNodesInterval == 300
         && !profile.credentials.passAsArguments
         && profile.behavior.disableMultiLine
-        && profile.behavior.disableKeepAlive
+        && profile.behavior.keepAliveMode == KeepAliveMode::Automatic
         && profile.behavior.disableZjuConfig
         && profile.dns.localDnsServer.isEmpty()
         && profile.dns.dnsServerBind.isEmpty()
